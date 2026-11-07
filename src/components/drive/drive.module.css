@@ -1,0 +1,1109 @@
+/* DriveWork, "Selected work". One DOM, two layouts:
+   - default (no JS, reduced motion, screens under 540px tall): a calm grid, the car shown once on its road;
+   - .section[data-drive] (set by DriveWork.tsx): a pinned road. The world slides left with scroll, the car
+     holds its spot and drives, projects pass above and below the road. */
+
+.section {
+  position: relative;
+  z-index: 1;
+  /* The car's beam and speed lines reach past the right edge in the static layout (page scrolled
+     34px sideways with reduced motion). Clip does not create a scroll container, so sticky still works. */
+  overflow-x: clip;
+  color: var(--paper);
+  --car-aspect: 3.0442;
+  --glass: rgb(255 255 255 / 0.1);
+}
+
+/* ================================================================================================
+   Shared pieces
+   ================================================================================================ */
+
+.eyebrow,
+.outroLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 0 0 clamp(14px, 1.5vw, 22px);
+}
+
+.dim {
+  color: var(--muted);
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(40px, min(5.6vw, 9svh), 96px);
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+
+.line {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.line > span {
+  display: inline-block;
+}
+
+.lede {
+  margin: 0;
+  max-width: 30ch;
+  font-size: clamp(15px, 1.12vw, 18px);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.cue {
+  display: none;
+}
+
+/* ---------- the car ---------- */
+.chassis {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-1.708deg); /* LEVEL_DEG: both tyres on a flat road */
+  transform-origin: 81.11% 98.98%; /* front contact patch */
+}
+
+.body {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  /* Adil: brighter, more red (the studio-lit render reads too dark on the black road). */
+  filter: brightness(1.32) saturate(1.45) contrast(1.06);
+}
+
+.wheel {
+  position: absolute;
+  aspect-ratio: 1;
+}
+
+.rim,
+.rimBlur {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.rim img,
+.rimBlur img {
+  filter: brightness(1.32) saturate(1.45) contrast(1.06);
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tyreText {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tyreText text {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: 7.6px;
+  letter-spacing: 0.9px;
+  fill: rgb(241 239 233 / 0.78);
+}
+
+.rimBlur {
+  opacity: 0;
+  filter: blur(2.5px) brightness(1.15);
+}
+
+/* Contact shadow: dims the road under the car (does not hide it) and darkens the two tyre patches.
+   Box spans 2%..99% of the car; patch tiles (22% wide) are centred on the contact points. */
+.shadow {
+  position: absolute;
+  left: 2%;
+  right: 1%;
+  top: 93.5%;
+  height: 11%;
+  background:
+    radial-gradient(closest-side, rgb(0 0 0 / 0.9), transparent) 6.8% 0 / 22% 100% no-repeat,
+    radial-gradient(closest-side, rgb(0 0 0 / 0.9), transparent) 90.5% 0 / 22% 100% no-repeat,
+    radial-gradient(closest-side, rgb(0 0 0 / 0.6), transparent);
+}
+
+/* ---------- project item ---------- */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  position: relative;
+}
+
+.card {
+  position: relative;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  perspective: 1100px;
+}
+
+.tilt {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+}
+
+/* Glass bezel: a thin lit frame around the picture, like a pane catching the light. */
+.tilt::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: calc(var(--radius-lg) + 6px);
+  background: linear-gradient(150deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.04) 34%, rgb(255 255 255 / 0.015) 64%, rgb(255 255 255 / 0.12));
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    0 40px 70px -36px rgb(0 0 0 / 0.9);
+  pointer-events: none;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--ink-2);
+  isolation: isolate;
+}
+
+.media picture {
+  position: absolute;
+  inset: 0;
+}
+
+.img,
+.video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition:
+    transform 1.4s var(--ease-out),
+    opacity 0.7s ease;
+}
+
+.video {
+  opacity: 0;
+}
+
+.video[data-ready] {
+  opacity: 1;
+}
+
+.alt {
+  opacity: 0;
+  animation: crossfade 9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+[data-active] .alt {
+  animation-play-state: running;
+}
+
+@keyframes crossfade {
+  0%,
+  38% {
+    opacity: 0;
+  }
+  50%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Dim veil, lifted for the project in front of the car, on hover and on focus. */
+.media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgb(5 5 6 / 0.35), transparent 45%), rgb(5 5 6 / 0.4);
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+
+.sheenClip {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+}
+
+.sheen {
+  position: absolute;
+  inset: 0 -60%;
+  background: linear-gradient(104deg, transparent 40%, rgb(255 255 255 / 0.13) 48.5%, rgb(255 255 255 / 0.04) 51%, transparent 58%);
+  mix-blend-mode: screen;
+}
+
+.tag {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 3;
+  padding: 7px 10px 6px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(5 5 6 / 0.42);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+
+.open {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.4s ease,
+    transform 0.6s var(--ease-out);
+}
+
+/* Chevron ">" echoing the notch of the logo's R. */
+.chev {
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  rotate: 45deg;
+  translate: -2px 0;
+}
+
+.item:hover .media::after,
+.item:focus-within .media::after,
+.stop[data-active] .media::after {
+  opacity: 0;
+}
+
+.item:hover .img,
+.item:hover .video {
+  transform: scale(1.045);
+}
+
+.item:hover .open,
+.item:focus-within .open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.num {
+  color: var(--paper);
+}
+
+.rule {
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(24px, 2.2vw, 38px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.6s var(--ease-out);
+}
+
+.item:hover .titleLink,
+.titleLink:focus-visible {
+  background-size: 100% 1px;
+}
+
+.blurb {
+  margin: 12px 0 0;
+  max-width: 32ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.allWork {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(14px, 1.6vw, 24px);
+  color: var(--paper);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(44px, 6.4vw, 112px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.allArrow {
+  display: grid;
+  place-items: center;
+  width: 0.62em;
+  height: 0.62em;
+  border-radius: 50%;
+  border: 1.5px solid rgb(241 239 233 / 0.4);
+  transition:
+    background-color 0.4s var(--ease-out),
+    color 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
+}
+
+.allArrow .chev {
+  width: 0.13em;
+  height: 0.13em;
+  border-width: max(2px, 0.022em);
+  translate: -0.03em 0;
+  transition: translate 0.4s var(--ease-out);
+}
+
+.allWork:hover .allArrow,
+.allWork:focus-visible .allArrow {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.allWork:hover .allArrow .chev {
+  translate: 0.01em 0;
+}
+
+.outroFoot {
+  margin: 0;
+  max-width: 28ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ================================================================================================
+   Default layout: grid (no JS, reduced motion, very short screens)
+   ================================================================================================ */
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "car" "foot" "list" "outro";
+  row-gap: clamp(28px, 4vw, 48px);
+  padding: clamp(96px, 12vw, 168px) var(--gutter);
+}
+
+.track,
+.intro {
+  display: contents;
+}
+
+.introHead {
+  grid-area: head;
+  align-self: end;
+}
+
+.introFoot {
+  grid-area: foot;
+}
+
+.rig {
+  grid-area: car;
+  position: relative;
+  width: min(100%, 620px);
+  aspect-ratio: var(--car-aspect);
+  margin: 6px 0 24px;
+}
+
+/* The road under the parked car. */
+.rig::after {
+  content: "";
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  top: 99%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(241 239 233 / 0.28) 18%, rgb(241 239 233 / 0.28) 82%, transparent);
+}
+
+.reflection,
+.ghost,
+.road,
+.hud,
+.streaks,
+.beam,
+.tail,
+.post,
+.marker,
+.finish {
+  display: none;
+}
+
+.list {
+  grid-area: list;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(44px, 5vw, 72px) clamp(16px, 2vw, 28px);
+  margin-top: clamp(24px, 5vw, 72px);
+}
+
+.list .card {
+  aspect-ratio: 16 / 10;
+  margin-bottom: 22px;
+}
+
+.outro {
+  grid-area: outro;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
+  margin-top: clamp(40px, 6vw, 96px);
+  padding-top: clamp(28px, 3vw, 40px);
+  border-top: 1px solid var(--line);
+}
+
+.outroLabel {
+  margin-bottom: 18px;
+}
+
+@media (min-width: 620px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .stage {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "head car" "foot car" "list list" "outro outro";
+    column-gap: 6vw;
+  }
+
+  .rig {
+    align-self: center;
+    justify-self: end;
+  }
+}
+
+/* ================================================================================================
+   Drive layout
+   ================================================================================================ */
+
+.section[data-drive] .stage {
+  /* Geometry. JS reads --focus and --single; everything else is layout. */
+  --focus: 0.56;
+  --single: 0;
+  --top-safe: calc(clamp(16px, 2.2vw, 36px) + clamp(44px, 3.4vw, 56px) + 18px);
+  --bottom-safe: clamp(64px, 9svh, 92px);
+  --road: 58svh;
+  --car-w: min(34vw, 50svh);
+  --car-h: calc(var(--car-w) / var(--car-aspect));
+  --car-left: 7vw;
+  --gap-up: clamp(18px, 3svh, 30px);
+  --gap-down: clamp(36px, 5.6svh, 56px);
+  --band-top: calc(var(--road) - var(--car-h) - var(--gap-up) - var(--top-safe));
+  --band-bottom: calc(100svh - var(--road) - var(--gap-down) - var(--bottom-safe));
+  --card-h: min(var(--band-top), var(--band-bottom));
+  --spacing: 40vw;
+  --first: 62vw;
+  --text-w: min(27vw, 400px);
+
+  display: block;
+  /* The stage sticks for the length of the drive. CSS sticky instead of a GSAP pin: switching the
+     stage to position: fixed made Chrome report a full-screen layout shift (CLS ~1.0 per visit), and
+     sticky stays smooth under native touch scrolling. */
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  padding: 0;
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* Room for the drive: one screen for the stage plus the scroll length DriveWork.tsx measures. */
+.section[data-drive] {
+  height: calc(100svh + var(--drive-len, 0px));
+}
+
+/* ---------- background type, road ---------- */
+.section[data-drive] .ghost {
+  display: block;
+  position: absolute;
+  left: 30vw;
+  top: calc(var(--road) - 0.855em); /* baseline on the road line: the letters stand on it, far away */
+  z-index: 0;
+  margin: 0;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(150px, 19vw, 360px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(241 239 233 / 0.11);
+  will-change: transform;
+  pointer-events: none;
+  user-select: none;
+}
+
+.section[data-drive] .road {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--road);
+  height: 14px;
+  z-index: 1;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.roadLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: rgb(241 239 233 / 0.3);
+}
+
+.ruler {
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: calc(100% + 240px);
+  height: 12px;
+  background:
+    linear-gradient(90deg, rgb(241 239 233 / 0.34) 1px, transparent 1px) 0 0 / 120px 11px repeat-x,
+    linear-gradient(90deg, rgb(241 239 233 / 0.16) 1px, transparent 1px) 0 0 / 24px 5px repeat-x;
+  will-change: transform;
+}
+
+/* ---------- the moving world ---------- */
+.section[data-drive] .track {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  will-change: transform;
+}
+
+.section[data-drive] .intro {
+  display: block;
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  bottom: 0;
+  width: min(50vw, 820px);
+}
+
+.section[data-drive] .introHead {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - var(--road) + var(--car-h) + var(--gap-up));
+}
+
+.section[data-drive] .introFoot {
+  position: absolute;
+  left: 0;
+  top: calc(var(--road) + var(--gap-down));
+  width: min(30vw, 420px);
+}
+
+.section[data-drive] .cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 0;
+  color: var(--paper);
+  transition: opacity 0.5s ease;
+}
+
+.cueArrow {
+  position: relative;
+  width: 34px;
+  height: 1px;
+  background: currentColor;
+  animation: cue 2.4s var(--ease-out) infinite;
+}
+
+.cueArrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  rotate: 45deg;
+}
+
+@keyframes cue {
+  0% {
+    transform: translateX(-6px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+}
+
+.stage[data-moving] .cue {
+  opacity: 0;
+}
+
+.section[data-drive] .list {
+  display: block;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+
+.section[data-drive] .stop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--first) + var(--i) * var(--spacing));
+  width: 0;
+}
+
+.section[data-drive] .item {
+  position: static;
+}
+
+.section[data-drive] .card {
+  position: absolute;
+  left: 0;
+  height: var(--card-h);
+  aspect-ratio: var(--aspect);
+  max-width: calc(var(--spacing) - 5vw);
+  margin: 0;
+}
+
+.section[data-drive] .tilt {
+  will-change: transform;
+}
+
+.section[data-drive] .meta {
+  position: absolute;
+  left: 20px;
+  width: var(--text-w);
+  opacity: 0.5;
+  transition: opacity 0.6s ease;
+}
+
+.section[data-drive] .stop[data-active] .meta,
+.section[data-drive] .item:hover .meta,
+.section[data-drive] .item:focus-within .meta {
+  opacity: 1;
+}
+
+/* Desktop zigzag: odd projects ride above the road, even ones below; the text takes the other side. */
+.section[data-drive] .stop[data-side="top"] .card,
+.section[data-drive] .stop[data-side="bottom"] .meta {
+  top: auto;
+  bottom: calc(100% - var(--road) + var(--car-h) + var(--gap-up));
+}
+
+.section[data-drive] .stop[data-side="top"] .meta,
+.section[data-drive] .stop[data-side="bottom"] .card {
+  top: calc(var(--road) + var(--gap-down));
+  bottom: auto;
+}
+
+/* The post: one hairline joining picture, road and text, crossing behind the car. */
+.section[data-drive] .post {
+  display: block;
+  position: absolute;
+  left: 0;
+  width: 1px;
+  top: calc(var(--road) - var(--car-h) - var(--gap-up));
+  bottom: calc(100% - var(--road) - var(--gap-down));
+  background: linear-gradient(to bottom, transparent, rgb(241 239 233 / 0.2) 18%, rgb(241 239 233 / 0.2) 82%, transparent);
+  transition: background 0.6s ease;
+}
+
+.section[data-drive] .marker {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: var(--road);
+}
+
+.section[data-drive] .marker::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: inset 0 0 0 1.5px rgb(241 239 233 / 0.5);
+  transition:
+    background-color 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+.markerNum {
+  position: absolute;
+  left: 10px;
+  top: 16px;
+  font-size: 10px;
+  color: var(--muted);
+  transition: color 0.5s ease;
+}
+
+.section[data-drive] .stop[data-active] .post {
+  background: linear-gradient(to bottom, transparent, rgb(241 239 233 / 0.5) 18%, rgb(241 239 233 / 0.5) 82%, transparent);
+}
+
+.section[data-drive] .stop[data-active] .marker::before {
+  background: var(--accent);
+  box-shadow:
+    0 0 0 4px rgb(255 59 31 / 0.18),
+    0 0 18px 2px rgb(255 59 31 / 0.55);
+}
+
+.section[data-drive] .stop[data-active] .markerNum {
+  color: var(--paper);
+}
+
+/* ---------- end of the road ---------- */
+.section[data-drive] .outro {
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--first) + var(--count) * var(--spacing));
+  width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.section[data-drive] .outroHead {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - var(--road) + var(--car-h) + var(--gap-up));
+  white-space: nowrap;
+}
+
+.section[data-drive] .outroFoot {
+  position: absolute;
+  left: 4px;
+  top: calc(var(--road) + var(--gap-down));
+  width: 28ch;
+}
+
+.section[data-drive] .finish {
+  display: block;
+  position: absolute;
+  left: -5vw;
+  top: calc(var(--road) - 28px);
+  width: 10px;
+  height: 56px;
+  background:
+    linear-gradient(45deg, rgb(241 239 233 / 0.85) 25%, transparent 25% 75%, rgb(241 239 233 / 0.85) 75%) 0 0 / 10px 10px,
+    linear-gradient(45deg, rgb(241 239 233 / 0.85) 25%, transparent 25% 75%, rgb(241 239 233 / 0.85) 75%) 5px 5px / 10px 10px;
+  opacity: 0.5;
+}
+
+/* ---------- the car rig ---------- */
+.section[data-drive] .rig {
+  position: absolute;
+  left: var(--car-left);
+  top: calc(var(--road) - var(--car-h) * 0.9898);
+  z-index: 3;
+  width: var(--car-w);
+  margin: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.section[data-drive] .rig::after {
+  display: none;
+}
+
+/* Wet-tarmac reflection: the car mirrored under the road, fading out fast. Sits under the world. */
+.section[data-drive] .reflection {
+  display: block;
+  z-index: 1;
+  opacity: 0.34;
+}
+
+/* scale(1,-1) about the front contact patch mirrors the car about the road line itself. */
+.section[data-drive] .reflection > .chassis {
+  scale: 1 -1;
+  mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.35) 22%, transparent 46%);
+}
+
+/* Speed lines: a wide band behind the car, from beyond the screen edge to just short of the nose. They run
+   behind the body, so they read above the roofline, over the bonnet and in the gap behind the tail. */
+.section[data-drive] .streaks {
+  display: block;
+  position: absolute;
+  left: calc(-1 * var(--car-left) - 12vw);
+  right: 6%;
+  top: -26%;
+  height: 112%;
+  opacity: 0;
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+}
+
+.streak {
+  position: absolute;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(241 239 233 / 0.75) 72%, transparent);
+  will-change: transform;
+}
+
+/* Two warmer trails at taillight height, 2px with a soft bloom. */
+.hot {
+  height: 2px;
+  margin-top: -0.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgb(255 236 226 / 0.55) 55%, rgb(255 255 255 / 0.95) 88%, transparent);
+  box-shadow: 0 0 10px 1px rgb(255 59 31 / 0.22);
+}
+
+/* Headlights: a soft beam ahead of the car and a pool of light on the road. */
+.section[data-drive] .beam {
+  display: block;
+  position: absolute;
+  left: 72%;
+  top: 0;
+  width: min(66vw, 1040px);
+  height: 160%;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 40% 3.2% at 36% 61.9%, rgb(255 246 232 / 0.26), transparent 75%),
+    radial-gradient(ellipse 30% 9% at 30% 60%, rgb(255 246 232 / 0.07), transparent 75%),
+    radial-gradient(ellipse 40% 16% at 18% 40%, rgb(255 246 232 / 0.035), transparent 75%);
+  pointer-events: none;
+}
+
+/* Taillight: always faintly lit (the brand red), brighter when braking or reversing. */
+.section[data-drive] .tail {
+  display: block;
+  position: absolute;
+  left: -5%;
+  top: 19%;
+  width: 16%;
+  height: 30%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 59 31 / 0.75), rgb(255 59 31 / 0.18) 55%, transparent);
+  opacity: 0.32;
+  mix-blend-mode: screen;
+  transform-origin: 70% 50%;
+}
+
+/* ---------- HUD ---------- */
+.section[data-drive] .hud {
+  display: flex;
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(18px, 3.2svh, 32px);
+  z-index: 4;
+  align-items: flex-end;
+  justify-content: space-between;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.stage[data-pinned] .hud {
+  opacity: 1;
+}
+
+.hud p {
+  margin: 0;
+}
+
+.speed {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.speedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgb(255 59 31 / 0.7);
+}
+
+.counter {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  position: relative;
+  display: block;
+  width: clamp(96px, 10vw, 160px);
+  height: 1px;
+  background: rgb(241 239 233 / 0.18);
+  overflow: hidden;
+}
+
+.bar > span {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* ---------- one project at a time (phones, tablets in portrait) ---------- */
+@media (max-width: 900px), (max-aspect-ratio: 1/1) {
+  .section[data-drive] .stage {
+    --focus: 0.5;
+    --single: 1;
+    --road: 61svh;
+    --car-w: min(72vw, 460px);
+    --car-left: 9vw;
+    --gap-up: 20px;
+    --gap-down: 40px;
+    --bottom-safe: 64px;
+    --spacing: 100vw;
+    --first: calc(100vw + var(--gutter));
+    --col-w: calc(100vw - 2 * var(--gutter));
+  }
+
+  .section[data-drive] .intro {
+    width: var(--col-w);
+  }
+
+  .section[data-drive] .heading {
+    font-size: clamp(38px, 11.4vw, 72px);
+  }
+
+  .section[data-drive] .introFoot {
+    width: var(--col-w);
+  }
+
+  .section[data-drive] .ghost {
+    left: 12vw;
+    font-size: clamp(110px, 34vw, 240px);
+  }
+
+  .section[data-drive] .stop .card,
+  .section[data-drive] .stop[data-side] .card {
+    top: auto;
+    bottom: calc(100% - var(--road) + var(--car-h) + var(--gap-up));
+    height: auto;
+    width: min(var(--col-w), var(--band-top) * var(--aspect));
+    max-width: none;
+  }
+
+  .section[data-drive] .stop .meta,
+  .section[data-drive] .stop[data-side] .meta {
+    top: calc(var(--road) + var(--gap-down));
+    bottom: auto;
+    left: 18px;
+    width: calc(var(--col-w) - 18px);
+  }
+
+  .section[data-drive] .title {
+    font-size: clamp(26px, 7.4vw, 40px);
+  }
+
+  .section[data-drive] .blurb {
+    font-size: 14.5px;
+  }
+
+  .section[data-drive] .outroHead {
+    width: var(--col-w);
+    white-space: normal;
+  }
+
+  .section[data-drive] .outroLabel {
+    white-space: nowrap;
+  }
+
+  .section[data-drive] .outroFoot {
+    width: min(28ch, var(--col-w));
+  }
+
+  .section[data-drive] .allWork {
+    font-size: clamp(40px, 13vw, 88px);
+    white-space: nowrap;
+  }
+
+  .section[data-drive] .finish {
+    left: -6vw;
+  }
+
+  .section[data-drive] .beam {
+    width: 60vw;
+  }
+
+}

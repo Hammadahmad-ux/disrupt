@@ -1,0 +1,607 @@
+/* About page: dark ink, one editorial grid, wide display type, sparing taillight red.
+   Every section after the hero opens on a hairline rule: a small numbered label on the left
+   (columns 1-3), the content from column 4. Phones stack everything in one column. */
+
+.page {
+  --cols: repeat(12, minmax(0, 1fr));
+  --col-gap: clamp(16px, 2vw, 32px);
+  --rule-above: clamp(88px, 11vw, 176px); /* space between sections, above each rule */
+  --rule-below: clamp(28px, 3.2vw, 52px); /* space under the rule, before the content */
+  position: relative;
+  z-index: 1;
+  padding-bottom: clamp(104px, 12vw, 184px);
+  background: transparent; /* the contour lines (AliveBackground) show through */
+}
+
+/* Keeps the header readable while the bright hero still passes under it. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: clamp(88px, 10vw, 150px);
+  background: linear-gradient(rgb(5 5 6 / 0.6), rgb(5 5 6 / 0.26) 55%, rgb(5 5 6 / 0));
+  pointer-events: none;
+}
+
+/* ---------- Shared: section, rule, label ---------- */
+
+.section {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: calc(var(--rule-above) + var(--rule-below)) var(--gutter) 0;
+  /* The hairline rule at the top of the section, inside the gutters (no fill: the contour lines stay visible). */
+  background: linear-gradient(var(--line), var(--line)) no-repeat;
+  background-size: calc(100% - 2 * var(--gutter)) 1px;
+  background-position: var(--gutter) var(--rule-above);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 28px;
+  color: var(--muted);
+}
+
+.labelChev {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  color: var(--accent);
+}
+
+.caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  color: var(--muted);
+}
+
+.captionNote {
+  color: rgb(241 239 233 / 0.4);
+}
+
+@media (min-width: 900px) {
+  .section {
+    grid-template-columns: var(--cols);
+    column-gap: var(--col-gap);
+  }
+
+  .label {
+    grid-column: 1 / span 3;
+    grid-row: 1;
+    align-self: start;
+    margin: 0;
+    padding-top: clamp(8px, 0.9vw, 14px); /* level with the first line of the content beside it */
+  }
+}
+
+/* ---------- 1. Hero: statement + cinema-wide still ---------- */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: clamp(116px, 13vw, 196px) var(--gutter) 0;
+}
+
+.heroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: clamp(22px, 2.6vw, 44px);
+  color: var(--muted);
+}
+
+.heroTop p {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.heroWhere {
+  color: rgb(241 239 233 / 0.4);
+}
+
+.statement {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(38px, 11.4vw, 72px);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+}
+
+.line {
+  display: block;
+}
+
+/* Each phrase rises out of its own mask; phrases never break inside. */
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  white-space: nowrap;
+  /* room for descenders and the tight tracking, given back with negative margins */
+  padding: 0 0.06em 0.12em;
+  margin: 0 -0.06em -0.12em;
+}
+
+.word {
+  display: inline-block;
+}
+
+@media (min-width: 900px) {
+  .statement {
+    font-size: clamp(56px, 6.4vw, 120px);
+  }
+
+  .line {
+    white-space: nowrap;
+  }
+
+  /* The second sentence answers the first from the right edge. */
+  .line + .line {
+    text-align: right;
+  }
+}
+
+.heroFigure {
+  margin: clamp(36px, 5vw, 80px) 0 0;
+}
+
+.heroFrame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2.39;
+  background: var(--ink-2);
+}
+
+.heroImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 24%;
+}
+
+@media (max-width: 899px) {
+  /* Phones: the still runs edge to edge in a taller frame, so the car keeps its size. */
+  .heroFigure {
+    margin-inline: calc(-1 * var(--gutter));
+  }
+
+  .heroFrame {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Taller than the frame and anchored to its foot: the strip of sky above the arch stays out of view
+     (on a tall frame it read as a light seam), the arch and the car stay whole. */
+  .heroImg {
+    inset: auto 0 0;
+    height: 114%;
+  }
+
+  .heroFigure .caption {
+    padding-inline: var(--gutter);
+  }
+}
+
+/* ---------- 2. The studio ---------- */
+
+.lead {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 110;
+  font-weight: 400;
+  font-size: clamp(24px, 6.4vw, 34px);
+  line-height: 1.17;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+
+.body {
+  margin-top: 36px;
+}
+
+.bodyText {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(15px, 1.1vw, 18px);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.leadBy {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 0;
+  color: var(--paper);
+}
+
+.dash {
+  flex: none;
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.facts {
+  margin: 40px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(8.5em, 40%) 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.fact dt {
+  color: var(--muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.side {
+  margin: 48px 0 0;
+}
+
+.sideFrame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1600 / 1819;
+  background: var(--ink-2);
+}
+
+.sideImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* the car sits low in a tall, dark frame: come in a little closer */
+  transform: scale(1.16);
+  transform-origin: 50% 64%;
+}
+
+@media (max-width: 899px) {
+  /* Phones: the portrait sits narrower and to the right, so the column does not end on a wall of picture. */
+  .side {
+    width: 72%;
+    margin-left: auto;
+  }
+}
+
+@media (min-width: 900px) {
+  .lead {
+    grid-column: 4 / span 8;
+    grid-row: 1;
+    font-size: clamp(28px, 2.75vw, 48px);
+  }
+
+  .side {
+    grid-column: 1 / span 3;
+    grid-row: 2;
+    align-self: start;
+    margin-top: clamp(56px, 6vw, 104px);
+  }
+
+  .body {
+    grid-column: 4 / span 4;
+    grid-row: 2;
+    margin-top: clamp(56px, 6vw, 104px);
+  }
+
+  .facts {
+    grid-column: 9 / span 4;
+    grid-row: 2;
+    align-self: start;
+    margin-top: clamp(56px, 6vw, 104px);
+  }
+}
+
+/* ---------- 3. How we work ---------- */
+
+.principles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.principle {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  grid-template-areas:
+    "num title"
+    ". line";
+  column-gap: 8px;
+  row-gap: 10px;
+  align-items: baseline;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.principle:first-child {
+  padding-top: 0;
+}
+
+.principle:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.pNum {
+  grid-area: num;
+  color: var(--accent);
+}
+
+.pTitle {
+  grid-area: title;
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 500;
+  font-size: clamp(22px, 6vw, 28px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.pLine {
+  grid-area: line;
+  max-width: 36ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+@media (min-width: 900px) {
+  .principles {
+    grid-column: 4 / -1;
+    grid-row: 1;
+  }
+
+  .principle {
+    grid-template-columns: 4.5em minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas: "num title line";
+    column-gap: var(--col-gap);
+    padding: clamp(24px, 2.6vw, 40px) 0;
+  }
+
+  .pTitle {
+    font-size: clamp(24px, 2.25vw, 38px);
+  }
+}
+
+/* ---------- 4. Brands ---------- */
+
+.logos {
+  --logo: clamp(40px, 11.6vw, 52px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Hairlines only between the cells (no outer box). */
+.logoCell {
+  display: grid;
+  place-items: center;
+  height: clamp(88px, 24vw, 116px);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.logoCell:nth-child(2n) {
+  border-right: 0;
+}
+
+.logoCell:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  max-width: 74%;
+  height: calc(var(--logo) * var(--k, 0.5));
+  object-fit: contain;
+  opacity: 0.62;
+  user-select: none;
+  transition: opacity 0.5s ease;
+}
+
+.logoCell:hover .logo {
+  opacity: 1;
+}
+
+@media (min-width: 900px) {
+  .logos {
+    --logo: clamp(40px, 3.7vw, 64px);
+    grid-column: 4 / -1;
+    grid-row: 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .logoCell {
+    height: clamp(110px, 10vw, 168px);
+  }
+
+  .logoCell:nth-child(2n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .logoCell:nth-child(4n) {
+    border-right: 0;
+  }
+
+  .logoCell:nth-last-child(-n + 4) {
+    border-bottom: 0;
+  }
+}
+
+/* ---------- 5. On to contact ---------- */
+
+.nextTop {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px 24px;
+}
+
+.nextAsk {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(16px, 1.3vw, 20px);
+  line-height: 1.4;
+}
+
+.mail {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.mail:hover,
+.mail:focus-visible {
+  color: var(--paper);
+}
+
+.nextLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: clamp(14px, 1.8vw, 26px);
+  padding-bottom: clamp(16px, 1.8vw, 28px);
+  border-bottom: 1px solid var(--line);
+  color: var(--paper);
+  text-decoration: none;
+}
+
+/* A red line draws along the rule on hover / keyboard focus. */
+.nextLink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.nextLink:hover::after,
+.nextLink:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.nextText {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(36px, 10.4vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+/* The logo's ">" at the size of the words, in taillight red. */
+.nextArrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  font-size: clamp(36px, 10.4vw, 64px);
+  line-height: 1;
+  margin-right: 0.14em; /* room for the hover nudge, so it never passes the rule's end */
+  color: var(--accent);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.nextArrow svg {
+  width: 0.62em;
+  height: 0.62em;
+}
+
+.nextLink:hover .nextArrow,
+.nextLink:focus-visible .nextArrow {
+  transform: translateX(0.14em);
+}
+
+@media (min-width: 900px) {
+  .nextBody {
+    grid-column: 4 / -1;
+    grid-row: 1;
+  }
+
+  /* Smaller than the statement: the footer's big line follows straight after. */
+  .nextText,
+  .nextArrow {
+    font-size: clamp(48px, 4.7vw, 88px);
+  }
+}
+
+/* ---------- Reveals (set up by AboutMotion; never with reduced motion) ---------- */
+
+.page[data-reveal] .word {
+  transform: translate3d(0, 112%, 0);
+}
+
+.page[data-reveal][data-hero-in] .word {
+  transform: none;
+  transition: transform 1.25s var(--ease-out) var(--d, 0ms);
+}
+
+.page[data-reveal] [data-hero-fade] {
+  opacity: 0;
+}
+
+.page[data-reveal][data-hero-in] [data-hero-fade] {
+  opacity: 1;
+  transition: opacity 1.2s ease 0.55s;
+}
+
+/* The hero still opens like a cinema letterbox, from a slit to the full frame. */
+.page[data-reveal] .heroFrame {
+  clip-path: inset(50% 0 50% 0);
+}
+
+.page[data-reveal][data-hero-in] .heroFrame {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.6s cubic-bezier(0.65, 0, 0.2, 1) 0.4s;
+}
+
+.page[data-reveal] [data-rv] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+}
+
+.page[data-reveal] [data-rv][data-in] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 1s ease var(--d, 0ms),
+    transform 1.2s var(--ease-out) var(--d, 0ms);
+}

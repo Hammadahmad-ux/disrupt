@@ -1,0 +1,173 @@
+{
+  "_note": "Frames for the film pages' frames rhythm (FramesRhythm.tsx). Moments that are NOT in the 'In this shot' list, so the page never shows the same picture twice. Picked by eye from the masters: no faces, no end cards, no supers (NASCAR only from the CGI closing run). 'at' = grab time in seconds, 'play' = where 'Play from' starts the film. Titles describe what is on screen and are draft labels (CONFIRM WITH ADIL). Images: node scripts/media/build-rhythm-frames.mjs writes /media/work/<slug>/rhythm/NN(-800).{avif,webp} and fills w/h here.",
+  "frames": {
+    "audi-rs5-estate": [
+      {
+        "at": 7.5,
+        "play": 7,
+        "title": "Rear light bar",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 9.5,
+        "play": 8.9,
+        "title": "Grille and badge",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 25.5,
+        "play": 24.6,
+        "title": "Headlight signature",
+        "w": 1600,
+        "h": 900
+      }
+    ],
+    "mclaren-endurance": [
+      {
+        "at": 13,
+        "play": 12,
+        "title": "Classic tail lamps",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 41,
+        "play": 40.5,
+        "title": "Wing against the sun",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 48,
+        "play": 47.6,
+        "title": "Pan at dusk",
+        "w": 1600,
+        "h": 900
+      }
+    ],
+    "audi-f1": [
+      {
+        "at": 5.5,
+        "play": 5,
+        "title": "Rings in red light",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 13,
+        "play": 12.5,
+        "title": "Helmet in the lasers",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 18,
+        "play": 17.5,
+        "title": "Side on, under light",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 26,
+        "play": 25.5,
+        "title": "Low on the track",
+        "w": 1600,
+        "h": 900
+      }
+    ],
+    "cupra": [
+      {
+        "at": 13.5,
+        "play": 13,
+        "title": "City canyon",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 21,
+        "play": 20.4,
+        "title": "The livery",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 24.5,
+        "play": 24,
+        "title": "Front wing",
+        "w": 1600,
+        "h": 900
+      }
+    ],
+    "audi-rebirth": [
+      {
+        "at": 19,
+        "play": 18.5,
+        "title": "Light bar",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 23.25,
+        "play": 22.7,
+        "title": "Headlight chevrons",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 25.5,
+        "play": 24.9,
+        "title": "Wheel and rings",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 32.75,
+        "play": 32.3,
+        "title": "Tail chevrons",
+        "w": 1600,
+        "h": 900
+      }
+    ],
+    "alpine": [
+      {
+        "at": 1.1,
+        "play": 0.8,
+        "title": "Chalk count",
+        "w": 1600,
+        "h": 640
+      },
+      {
+        "at": 6.6,
+        "play": 6.2,
+        "title": "The gripper",
+        "w": 1600,
+        "h": 640
+      },
+      {
+        "at": 12.4,
+        "play": 11.9,
+        "title": "Hologram, front on",
+        "w": 1600,
+        "h": 640
+      }
+    ],
+    "nascar": [
+      {
+        "at": 105.6,
+        "play": 105,
+        "title": "Up the ramp",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "at": 107.4,
+        "play": 106.9,
+        "title": "Driver's view",
+        "w": 1600,
+        "h": 900
+      }
+    ]
+  }
+}

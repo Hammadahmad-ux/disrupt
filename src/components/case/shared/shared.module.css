@@ -1,0 +1,191 @@
+/* Shared case-study building blocks. Template builders: import this module and reuse these classes
+   (import s from "@/components/case/shared/shared.module.css").
+   CaseShell sets on its root: --key (dominant poster colour), --key-ui (the key lifted to read on ink),
+   --key-avg (plain average), --surface (body background), and data-accent="rule|numbers|chevron" +
+   data-type="film|stills". The key colour is used sparingly: .keyRule / .keyNum / .keyChev only take it
+   when the project's accent placement matches, so each page puts its colour in a different place. */
+
+/* ---------- layout ---------- */
+.section {
+  position: relative;
+  padding: clamp(80px, 11vw, 168px) var(--gutter);
+}
+
+.sectionTight {
+  position: relative;
+  padding: clamp(48px, 6vw, 96px) var(--gutter);
+}
+
+/* 12-column grid with the site gutter. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(12px, 1.6vw, 24px);
+}
+
+/* ---------- type ---------- */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 650;
+  font-size: clamp(34px, 4.8vw, 80px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.lead {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 112;
+  font-weight: 500;
+  font-size: clamp(24px, 2.7vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+.body {
+  margin: 0;
+  max-width: 54ch;
+  font-size: clamp(15px, 1.08vw, 17px);
+  line-height: 1.62;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+/* Timecodes, counters, frame numbers. */
+.tc {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- placeholders (copy Adil will send later) ---------- */
+/* A text box: the slot is visible but quiet. Put the draft copy inside. */
+.box {
+  position: relative;
+  padding: clamp(18px, 2vw, 28px);
+  border: 1px dashed rgb(241 239 233 / 0.18);
+  border-radius: var(--radius);
+}
+
+/* "Draft · to confirm" tag sitting on the box's top edge. */
+.draft {
+  position: absolute;
+  top: 0;
+  left: clamp(14px, 1.6vw, 22px);
+  translate: 0 -50%;
+  padding: 0 8px;
+  background: var(--surface, var(--ink));
+  font-family: var(--font-label);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(241 239 233 / 0.42);
+  white-space: nowrap;
+}
+
+/* A value still to confirm ("To confirm"). */
+.tbc {
+  color: rgb(241 239 233 / 0.46);
+  text-decoration: underline dashed rgb(241 239 233 / 0.24);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+/* ---------- key colour, placed by data-accent ---------- */
+.rule {
+  display: block;
+  height: 1px;
+  background: var(--line);
+}
+
+/* A short thick rule: key coloured on "rule" pages, paper elsewhere. */
+.keyRule {
+  display: block;
+  width: 56px;
+  height: 2px;
+  background: rgb(241 239 233 / 0.5);
+}
+
+[data-accent="rule"] .keyRule {
+  background: var(--key-ui);
+}
+
+/* Numbers and timecodes: key coloured on "numbers" pages. */
+.keyNum {
+  color: var(--muted);
+}
+
+[data-accent="numbers"] .keyNum {
+  color: var(--key-ui);
+}
+
+/* The logo's ">" chevron (components/work/Chevron.tsx): key coloured on "chevron" pages. */
+.keyChev {
+  flex: none;
+  color: var(--paper);
+}
+
+[data-accent="chevron"] .keyChev {
+  color: var(--key-ui);
+}
+
+/* ---------- media ---------- */
+/* A frame or still at its native aspect: style={{ "--ar": w / h }}. */
+.media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--ar, 16 / 9);
+  background: var(--ink-2);
+}
+
+.media img,
+.media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- reveal helpers ----------
+   useReveal() (reveal.ts) marks the container [data-reveal] once JS runs and adds [data-in] when it
+   scrolls into view; children with .reveal rise in (stagger with style={{ "--d": 120 }} in ms).
+   Without JS nothing is hidden. */
+.reveal {
+  transition:
+    opacity 0.9s var(--ease-out),
+    translate 1.1s var(--ease-out);
+  transition-delay: calc(var(--d, 0) * 1ms);
+}
+
+[data-reveal]:not([data-in]) .reveal {
+  opacity: 0;
+  translate: 0 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: opacity 0.2s ease;
+    translate: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

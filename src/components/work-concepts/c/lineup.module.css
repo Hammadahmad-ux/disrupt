@@ -1,0 +1,852 @@
+/* LINEUP (work concept C): a section drawing of a dark car park. Nine bays on three levels, one car per bay.
+   Lights flicker on after the loader; the hovered bay grows, its tube goes full and the car's own film frame
+   opens around it (registered to the cut-out); rest on a film and its loop plays in the bay. */
+
+.page {
+  --pillar: 10px;
+  --slab: 18px;
+  --struct: #141418;
+  --tube: #fff4e2;
+  --tube-glow: 255 244 226;
+  position: relative;
+  min-height: 100svh;
+  padding: clamp(92px, 7.6vw, 112px) var(--gutter) 0;
+  background: var(--ink);
+  overflow-x: clip;
+}
+
+/* ---------- Head ---------- */
+
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
+  align-items: end;
+  gap: 18px 40px;
+  margin-bottom: 22px;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgb(255 59 31 / 0.8);
+}
+
+.title {
+  margin: 14px 0 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(30px, 3.25vw, 52px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
+.headSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.lede {
+  margin: 0;
+  max-width: 40ch;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+}
+
+.filter {
+  display: inline-flex;
+  gap: 8px;
+  padding: 9px 14px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.filter span {
+  opacity: 0.6;
+}
+
+.filter:hover {
+  color: var(--paper);
+  border-color: rgb(241 239 233 / 0.4);
+}
+
+.filter[aria-pressed="true"] {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+/* ---------- Structure ---------- */
+
+.garage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: clamp(560px, calc(100svh - 236px), 860px);
+  margin-inline: calc(var(--gutter) * -0.4);
+}
+
+.level {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  transition: flex-grow 0.9s var(--ease-out);
+}
+
+.level[data-on] {
+  flex-grow: 1.34;
+}
+
+.bays {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  gap: var(--pillar);
+  padding-inline: var(--pillar);
+  background:
+    linear-gradient(90deg, rgb(241 239 233 / 0.1) 0 1px, transparent 1px calc(100% - 1px), rgb(241 239 233 / 0.1) calc(100% - 1px)),
+    var(--struct);
+}
+
+/* Section-cut concrete: hatched slab with a hairline top edge, datum label on the left. */
+.slab {
+  position: relative;
+  flex: 0 0 var(--slab);
+  background:
+    repeating-linear-gradient(135deg, rgb(241 239 233 / 0.075) 0 1px, transparent 1px 7px),
+    var(--struct);
+  border-top: 1px solid rgb(241 239 233 / 0.2);
+  border-bottom: 1px solid rgb(241 239 233 / 0.06);
+}
+
+.datum {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  translate: 0 -50%;
+  padding: 0 8px;
+  background: var(--struct);
+  color: rgb(241 239 233 / 0.5);
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---------- Bay ---------- */
+
+.bay {
+  --b: 0.86; /* car brightness */
+  --sat: 0.92;
+  --lamp: 0.72; /* tube + cone strength */
+  --k: 1; /* car power: 1 lit, low when filtered out */
+  --pw: 1; /* lamp power */
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  container-type: size;
+  color: inherit;
+  text-decoration: none;
+  background:
+    linear-gradient(180deg, transparent 0 77%, rgb(241 239 233 / 0.07) 77% calc(77% + 1px), rgb(241 239 233 / 0.022) calc(77% + 1px)),
+    linear-gradient(180deg, #0f0f13 0%, #09090b 77%);
+  transition: flex-grow 0.9s var(--ease-out);
+  outline-offset: -3px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bay[data-on] {
+  --b: 1.04;
+  --sat: 1.06;
+  --lamp: 1;
+  flex-grow: 1.62;
+}
+
+.garage[data-active] .bay:not([data-on]) {
+  --b: 0.5;
+  --sat: 0.45;
+  --lamp: 0.32;
+}
+
+/* Filtered out: lights off (multiplies whatever the hover state says). */
+.bay[data-off] {
+  --k: 0.13;
+  --pw: 0;
+  cursor: default;
+}
+
+/* Painted wheel stop on the floor under the car. */
+.stripe {
+  position: absolute;
+  left: 50%;
+  bottom: 14.5cqh;
+  width: calc(min(calc(var(--w) * 100cqw), calc(60cqh * var(--ar))) * 0.62);
+  height: 2px;
+  translate: -50% 0;
+  background: rgb(241 239 233 / 0.1);
+}
+
+/* Light pool on the floor. */
+.pool {
+  position: absolute;
+  left: 50%;
+  bottom: 2cqh;
+  width: 104%;
+  height: 34cqh;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgb(var(--tube-glow) / 0.16), rgb(var(--tube-glow) / 0.05) 60%, transparent);
+  opacity: calc(var(--lamp) * var(--pw));
+  transition: opacity 0.6s;
+  pointer-events: none;
+}
+
+/* Fluorescent tube under the slab, and its cone of light. */
+.tube {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 34%;
+  height: 3px;
+  translate: -50% 0;
+  border-radius: 0 0 2px 2px;
+  background: var(--tube);
+  box-shadow:
+    0 0 10px 1px rgb(var(--tube-glow) / 0.75),
+    0 0 36px 8px rgb(var(--tube-glow) / 0.2);
+  opacity: calc(0.25 + var(--lamp) * 0.75);
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.bay[data-off] .tube {
+  opacity: 0.08;
+  box-shadow: none;
+}
+
+.cone {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 96%;
+  height: 92%;
+  translate: -50% 0;
+  background: linear-gradient(180deg, rgb(var(--tube-glow) / 0.15), rgb(var(--tube-glow) / 0.05) 55%, transparent 88%);
+  clip-path: polygon(33% 0, 67% 0, 100% 100%, 0 100%);
+  filter: blur(2.5px);
+  mix-blend-mode: screen;
+  opacity: calc(var(--lamp) * var(--pw));
+  transition: opacity 0.6s;
+  pointer-events: none;
+}
+
+.bay[data-play] .cone {
+  opacity: 0.15;
+}
+
+/* "Occupied" LED over the bay: taillight red, the page's only accent. */
+.led {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px 1px rgb(255 59 31 / 0.75);
+  opacity: 0.55;
+  transition: opacity 0.4s;
+}
+
+.bay[data-on] .led {
+  opacity: 1;
+  animation: led 1.4s ease-in-out infinite;
+}
+
+.bay[data-off] .led {
+  background: #2a2a2e;
+  box-shadow: none;
+}
+
+@keyframes led {
+  50% {
+    box-shadow: 0 0 14px 4px rgb(255 59 31 / 0.9);
+  }
+}
+
+/* ---------- Car ---------- */
+
+.car {
+  position: absolute;
+  left: 50%;
+  bottom: 19cqh;
+  width: min(calc(var(--w) * 100cqw), calc(58cqh * var(--ar)));
+  aspect-ratio: var(--ar);
+  translate: calc(-50% + var(--px, 0px)) 0;
+  transition: translate 0.9s var(--ease-out);
+  pointer-events: none;
+}
+
+.car picture,
+.car img {
+  display: block;
+}
+
+.body,
+.reflect {
+  position: absolute;
+  inset: 0;
+}
+
+.body img,
+.reflect img {
+  width: 100%;
+  height: 100%;
+}
+
+.body img {
+  filter: brightness(calc(var(--b) * var(--k))) saturate(calc(var(--sat) * var(--k)));
+  transition: filter 0.6s, opacity 0.6s;
+}
+
+.bay[data-play] .body img {
+  opacity: 0;
+}
+
+/* Floor reflection: the car flipped under itself, fading out. */
+.reflect {
+  top: 100%;
+  bottom: auto;
+  height: 100%;
+  transform: scaleY(-1);
+  opacity: 0.16;
+  mask-image: linear-gradient(0deg, #000, transparent 38%);
+  transition: opacity 0.5s;
+}
+
+.reflect img {
+  filter: brightness(calc(var(--b) * var(--k))) saturate(calc(var(--sat) * var(--k))) blur(1px);
+  transition: filter 0.6s;
+}
+
+.shadow {
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  bottom: -5%;
+  height: 16%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.9), transparent);
+  filter: blur(3px);
+  transition: opacity 0.5s;
+}
+
+/* The car's own frame, drawn behind it at the exact offset; it opens from the car outwards. */
+.scene {
+  position: absolute;
+  opacity: 0;
+  clip-path: circle(0% at var(--cx) var(--cy));
+  transition:
+    clip-path 1s var(--ease-out),
+    opacity 0.35s;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9% 91%, transparent), linear-gradient(180deg, transparent, #000 8% 92%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 9% 91%, transparent), linear-gradient(180deg, transparent, #000 8% 92%, transparent);
+  mask-composite: intersect;
+}
+
+.scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bay[data-on] .scene {
+  opacity: 1;
+  clip-path: circle(75% at var(--cx) var(--cy));
+}
+
+.bay[data-on] .reflect,
+.bay[data-on] .shadow {
+  opacity: 0;
+}
+
+/* Darkens the floor of an open scene so the plate stays readable. */
+.shade {
+  position: absolute;
+  left: -100cqw;
+  right: -100cqw;
+  bottom: -19cqh;
+  height: 46cqh;
+  background: linear-gradient(0deg, rgb(5 5 6 / 0.72), transparent);
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.bay[data-on] .shade {
+  opacity: 1;
+}
+
+/* Keeps the bay number and labels readable over a bright scene or film. */
+.veil {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 42cqh;
+  background: linear-gradient(180deg, rgb(5 5 6 / 0.62), transparent);
+  opacity: 0;
+  transition: opacity 0.6s;
+  pointer-events: none;
+}
+
+.bay[data-on] .veil {
+  opacity: 1;
+}
+
+/* Hover dwell: the film's loop fills the bay. */
+.film {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s;
+  pointer-events: none;
+}
+
+.film[data-ready] {
+  opacity: 1;
+}
+
+/* ---------- Labels ---------- */
+
+.tag {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.no {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(20px, 15cqh, 44px);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(241 239 233 / 0.2);
+  transition: -webkit-text-stroke-color 0.4s;
+}
+
+.bay[data-on] .no {
+  -webkit-text-stroke-color: rgb(241 239 233 / 0.75);
+}
+
+.kind {
+  font-family: var(--font-label);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper);
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 -4px;
+  transition:
+    opacity 0.4s,
+    translate 0.6s var(--ease-out);
+}
+
+.bay[data-on] .kind {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0.2s;
+}
+
+/* Number plate under the car: the name, always readable. */
+.plate {
+  position: absolute;
+  left: 50%;
+  bottom: 4cqh;
+  display: inline-flex;
+  align-items: stretch;
+  height: clamp(24px, 1.9vw, 28px);
+  translate: -50% 0;
+  overflow: hidden;
+  border: 1px solid rgb(241 239 233 / 0.26);
+  border-radius: 4px;
+  background: rgb(8 8 10 / 0.86);
+  white-space: nowrap;
+  transition:
+    background 0.4s,
+    border-color 0.4s,
+    scale 0.6s var(--ease-out);
+}
+
+.plateBand {
+  display: grid;
+  place-items: center;
+  width: clamp(16px, 1.3vw, 20px);
+  background: rgb(241 239 233 / 0.1);
+  color: var(--paper);
+  font-size: 11px;
+  transition: background 0.4s;
+}
+
+.plateName {
+  display: grid;
+  place-items: center;
+  padding: 1px 11px 0 10px;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(11px, 0.92vw, 14px);
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  color: rgb(241 239 233 / 0.92);
+  transition: color 0.4s;
+}
+
+.bay[data-on] .plate {
+  background: var(--paper);
+  border-color: var(--paper);
+  scale: 1.12;
+}
+
+.bay[data-on] .plateBand {
+  background: var(--accent);
+}
+
+.bay[data-on] .plateName {
+  color: var(--ink);
+}
+
+.bay[data-off] .plate {
+  opacity: 0.35;
+}
+
+.open {
+  position: absolute;
+  top: 9px;
+  right: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0;
+  translate: -6px 0;
+  transition:
+    opacity 0.4s,
+    translate 0.6s var(--ease-out);
+  pointer-events: none;
+}
+
+.bay[data-on] .open {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0.25s;
+}
+
+/* ---------- Lights-on after the loader ---------- */
+
+.garage[data-boot="off"] :is(.tube, .cone, .pool) {
+  visibility: hidden;
+}
+
+.garage[data-boot="off"] .car {
+  filter: brightness(0.07) saturate(0);
+}
+
+.garage[data-boot="on"] :is(.tube, .cone, .pool) {
+  animation: power 0.95s var(--d) both;
+}
+
+.garage[data-boot="on"] .car {
+  animation: carPower 0.95s var(--d) both;
+}
+
+/* Second animation in the list: the boot one keeps its place, so it never restarts. */
+.garage[data-boot="on"] .bay[data-flick] :is(.tube, .cone, .pool) {
+  animation:
+    power 0.95s var(--d) both,
+    tired 0.7s;
+}
+
+.garage[data-boot="on"] .bay[data-strike] :is(.tube, .cone, .pool) {
+  animation:
+    power 0.95s var(--d) both,
+    tired 0.75s reverse;
+}
+
+.garage[data-boot="on"] .bay[data-strike] .body img {
+  animation: strikeCar 0.75s;
+}
+
+@keyframes strikeCar {
+  0% { filter: brightness(0.1) saturate(0); animation-timing-function: steps(1, end); }
+  20% { filter: brightness(0.9) saturate(0.8); animation-timing-function: steps(1, end); }
+  34% { filter: brightness(0.15) saturate(0.1); animation-timing-function: steps(1, end); }
+  55% { filter: brightness(calc(var(--b) * var(--k))) saturate(calc(var(--sat) * var(--k))); }
+}
+
+@keyframes power {
+  0% { visibility: hidden; animation-timing-function: steps(1, end); }
+  8% { visibility: visible; animation-timing-function: steps(1, end); }
+  14% { visibility: hidden; animation-timing-function: steps(1, end); }
+  30% { visibility: visible; animation-timing-function: steps(1, end); }
+  36% { visibility: hidden; animation-timing-function: steps(1, end); }
+  52%, 100% { visibility: visible; }
+}
+
+@keyframes carPower {
+  0% { filter: brightness(0.07) saturate(0); animation-timing-function: steps(1, end); }
+  8% { filter: brightness(0.8) saturate(0.7); animation-timing-function: steps(1, end); }
+  14% { filter: brightness(0.12) saturate(0); animation-timing-function: steps(1, end); }
+  30% { filter: brightness(0.9) saturate(0.85); animation-timing-function: steps(1, end); }
+  36% { filter: brightness(0.2) saturate(0.1); animation-timing-function: ease-out; }
+  52% { filter: brightness(1) saturate(1); }
+  100% { filter: none; }
+}
+
+@keyframes tired {
+  0% { visibility: visible; animation-timing-function: steps(1, end); }
+  20% { visibility: hidden; animation-timing-function: steps(1, end); }
+  28% { visibility: visible; animation-timing-function: steps(1, end); }
+  60% { visibility: hidden; animation-timing-function: steps(1, end); }
+  66%, 100% { visibility: visible; }
+}
+
+/* ---------- Bay 10: free ---------- */
+
+.free {
+  margin: 0 calc(var(--gutter) * -0.4) clamp(48px, 6vw, 96px);
+  padding: 0 var(--pillar);
+  background: var(--struct);
+  border-bottom: 1px solid rgb(241 239 233 / 0.2);
+}
+
+.freeBay {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(200px, 30%) auto;
+  align-items: center;
+  gap: 28px;
+  min-height: clamp(150px, 15vw, 210px);
+  padding: 22px clamp(20px, 3vw, 44px);
+  background: linear-gradient(180deg, #0d0d10, #08080a);
+  overflow: hidden;
+}
+
+.freeLed {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 0 8px 1px rgb(241 239 233 / 0.6);
+}
+
+.freeNo {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(56px, 7vw, 108px);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(241 239 233 / 0.28);
+}
+
+/* Painted bay lines, dashed, with nothing in them yet. */
+.freeLines {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  margin-block: -6px -22px;
+  border: 2px dashed rgb(241 239 233 / 0.16);
+  border-bottom: 0;
+  color: rgb(241 239 233 / 0.32);
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.freeText {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.freeText p {
+  margin: 0;
+}
+
+.freeTitle {
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(20px, 2vw, 30px);
+  letter-spacing: -0.02em;
+}
+
+.freeCta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 22px;
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.3s, color 0.3s;
+}
+
+.freeCta:hover {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* ---------- Phones and narrow tablets: a car park tower, one bay per floor ---------- */
+
+@media (max-width: 899px) {
+  .garage[data-active] .bay:not([data-on]) {
+    --b: 0.72;
+    --sat: 0.7;
+    --lamp: 0.5;
+  }
+
+  .head {
+    grid-template-columns: 1fr;
+  }
+
+  .headSide {
+    align-items: flex-start;
+  }
+
+  .lede {
+    text-align: left;
+  }
+
+  .garage {
+    height: auto;
+  }
+
+  .level,
+  .level[data-on] {
+    flex: none;
+  }
+
+  .bays {
+    flex: none;
+    flex-direction: column;
+    gap: var(--slab);
+    padding-inline: var(--pillar);
+    background:
+      repeating-linear-gradient(135deg, rgb(241 239 233 / 0.075) 0 1px, transparent 1px 7px),
+      var(--struct);
+  }
+
+  .bay,
+  .bay[data-on] {
+    flex: none;
+    height: clamp(210px, 60vw, 340px);
+  }
+
+  .no {
+    font-size: 34px;
+  }
+
+  .kind {
+    opacity: 0.6;
+    translate: 0 0;
+  }
+
+  .plateName {
+    font-size: 12.5px;
+  }
+
+  .freeBay {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .freeLines {
+    display: none;
+  }
+
+  .freeCta {
+    justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garage[data-boot] :is(.tube, .cone, .pool),
+  .garage[data-boot] .bay[data-flick] :is(.tube, .cone, .pool) {
+    visibility: visible;
+    animation: none;
+  }
+
+  .garage[data-boot] .car {
+    filter: none;
+    animation: none;
+  }
+
+  .level,
+  .bay,
+  .scene {
+    transition: none;
+  }
+
+  .bay[data-on] .led {
+    animation: none;
+  }
+}

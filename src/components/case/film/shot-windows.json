@@ -1,0 +1,80 @@
+{
+  "_note": "Live shot loops for \"In this shot\" (components/case/film/ShotsChapter.tsx): [start, end] seconds in film.mp4 per shot (same order as content/case-shots.json), or null to keep the still. Each window holds one shot only: cuts were found per frame (ffmpeg scene score spikes) around the shot frame time, then trimmed 2 frames after the cut in and 4 frames before the cut out, max 1.25 s either side of the frame. Window edges (and every 3rd frame of the NASCAR windows) were checked by eye: no faces or end cards. Recompute if film.mp4 or case-shots.json change.",
+  "windows": {
+    "audi-rs5-estate": [
+      null,
+      [2.417, 3.333],
+      [5.292, 7.083],
+      null,
+      [14, 15.125],
+      [15.458, 17.417],
+      null,
+      [21.833, 23.292],
+      [27.458, 29.708]
+    ],
+    "audi-f1": [
+      [0.083, 2.125],
+      [2.417, 3.958],
+      null,
+      [7.083, 9.542],
+      [9.958, 10.875],
+      [11.167, 12.125],
+      null,
+      [38.542, 41]
+    ],
+    "audi-rebirth": [
+      null,
+      [5.667, 8.125],
+      [9.583, 11.75],
+      [14.292, 15.5],
+      [20.292, 22.375],
+      [27.042, 28.875],
+      null,
+      [38.708, 40.292],
+      [50.042, 51.292],
+      null
+    ],
+    "cupra": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      [46.167, 48.625]
+    ],
+    "mclaren-endurance": [
+      null,
+      [18.25, 19.208],
+      [22, 23.083],
+      [24.708, 26.208],
+      [26.917, 29.375],
+      [30.958, 32.208],
+      null,
+      [50.083, 51.417],
+      [58.417, 60.875],
+      [64.042, 66.5]
+    ],
+    "nascar": [
+      [104.583, 105.542],
+      null,
+      [109.333, 110.5],
+      [111.875, 113.208],
+      [115.625, 116.75],
+      null,
+      [119.25, 121.208],
+      null
+    ],
+    "alpine": [
+      null,
+      null,
+      [5.542, 6.458],
+      [8.208, 10.417],
+      null,
+      null,
+      null
+    ]
+  }
+}

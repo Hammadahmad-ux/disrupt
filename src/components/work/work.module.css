@@ -1,0 +1,581 @@
+/* PAINTWORK: Work index (roster) + placeholder case hero. */
+
+/* ---------- Film stage (app/work/layout.tsx) ---------- */
+.stage {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100lvh;
+  overflow: hidden;
+  background: var(--ink);
+  pointer-events: none;
+}
+
+/* The /work index (WorkGrid) does not use the stage. */
+.stage[data-mode="off"] {
+  display: none;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+
+.media[data-on] {
+  opacity: 1;
+}
+
+.stageShade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+/* Roster without WebGL: the stage itself is the dim ambient light. */
+.stage[data-mode="index"][data-look="css"] .media {
+  transition: opacity 0.6s ease;
+}
+
+.stage[data-mode="index"][data-look="css"] .stageShade {
+  opacity: 1;
+  background: rgb(5 5 6 / 0.82);
+}
+
+.stage[data-mode="index"][data-look="css"] {
+  filter: blur(28px) saturate(1.2);
+  transform: scale(1.08);
+}
+
+/* Case hero: the film itself, with a little shade under the title. */
+.stage[data-mode="hero"] .stageShade {
+  opacity: 1;
+  background:
+    linear-gradient(to top, rgb(5 5 6 / 0.72), rgb(5 5 6 / 0) 46%),
+    linear-gradient(to bottom, rgb(5 5 6 / 0.4), rgb(5 5 6 / 0) 24%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stage[data-mode="hero"] img.media[data-on] {
+    animation: drift 18s ease-out both;
+  }
+}
+
+@keyframes drift {
+  to {
+    transform: scale(1.06);
+  }
+}
+
+/* ---------- Roster page ---------- */
+.page {
+  --fs: clamp(56px, 8.4vw, 150px);
+  --plate-w: clamp(220px, 19vw, 300px);
+  --primer: #3b3b40;
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+}
+
+.gl {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100lvh;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.page[data-gl="on"] .gl {
+  opacity: 1;
+}
+
+.top {
+  position: absolute;
+  top: clamp(96px, 16vh, 156px);
+  left: var(--gutter);
+  right: var(--gutter);
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px 24px;
+  opacity: var(--fade, 1);
+  translate: 0 calc((1 - var(--fade, 1)) * -18px);
+}
+
+.intro {
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--paper);
+}
+
+.lede {
+  max-width: 30ch;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.eyebrow span {
+  color: var(--accent);
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+}
+
+.filter {
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.filter:hover {
+  color: var(--paper);
+  border-color: rgb(241 239 233 / 0.4);
+}
+
+.filter[aria-pressed="true"] {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.roster {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: calc(50svh - var(--fs) * 0.46) var(--gutter) calc(50svh - var(--fs) * 0.46);
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  font-size: var(--fs);
+  transition: grid-template-rows 0.6s var(--ease-out);
+}
+
+.row[data-off] {
+  grid-template-rows: 0fr auto;
+}
+
+.clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.link,
+.open,
+.filter {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link {
+  display: flex;
+  align-items: last baseline;
+  gap: 0.1em;
+  /* A little air between names, so a two-line name reads as one block. */
+  padding-top: 0.07em;
+  color: inherit;
+  text-decoration: none;
+  outline-offset: -2px;
+  transition: opacity 0.35s ease;
+}
+
+.row[data-off] .link {
+  opacity: 0;
+}
+
+.name {
+  display: inline-block;
+  max-width: calc(100vw - 2 * var(--gutter) - var(--plate-w) - 2vw);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: var(--fs);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--primer);
+}
+
+.base {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: baseline;
+}
+
+/* WebGL draws the letters; the DOM text stays for layout, selection and screen readers. */
+.page[data-gl="on"] .name {
+  color: transparent;
+}
+
+/* No WebGL / reduced motion: the focused name is filled with its poster (screen-fixed, a window). */
+.page:not([data-gl="on"]) .row[data-focus] .name {
+  background: var(--poster) center / cover fixed;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* the posters are dark CGI frames: open them up so the painted name is the brightest thing on the page */
+  filter: brightness(1.9) saturate(1.15);
+}
+
+.num {
+  position: relative;
+  top: calc(var(--fs) * 0.1);
+  margin-left: 0.7em;
+  vertical-align: top;
+  font-family: var(--font-label);
+  font-variation-settings: normal;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: none;
+  color: rgb(241 239 233 / 0.32);
+  transition: color 0.3s ease;
+}
+
+.label {
+  margin-left: auto;
+  padding-left: 24px;
+  white-space: nowrap;
+  opacity: var(--prox, 1);
+  color: rgb(241 239 233 / 0.32);
+  transition: color 0.3s ease;
+}
+
+.row[data-focus] .num,
+.link:hover .num,
+.link:hover .label {
+  color: var(--paper);
+}
+
+.row[data-focus] .num {
+  color: var(--accent);
+}
+
+.hair {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.6s var(--ease-out);
+}
+
+.row[data-off] .hair {
+  height: 24px;
+}
+
+.hair span {
+  display: block;
+  padding-top: 6px;
+  border-top: 1px solid var(--primer);
+  font-size: 10px;
+  color: rgb(241 239 233 / 0.3);
+}
+
+.tick {
+  position: fixed;
+  left: calc(var(--gutter) * 0.28);
+  top: 50%;
+  z-index: 2;
+  width: max(8px, calc(var(--gutter) * 0.42));
+  height: 2px;
+  background: var(--accent);
+  translate: 0 -50%;
+}
+
+/* ---------- Spec plate ---------- */
+.plate {
+  position: fixed;
+  right: var(--gutter);
+  top: 50%;
+  z-index: 3;
+  width: var(--plate-w);
+  translate: 0 -50%;
+}
+
+.plateIn {
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  animation: plate-in 0.5s var(--ease-out) both;
+}
+
+.plateIn p {
+  margin: 0;
+}
+
+@keyframes plate-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+.plateCount {
+  color: var(--accent);
+}
+
+.plateTitle {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(17px, 1.35vw, 22px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.plateMeta {
+  color: var(--muted);
+}
+
+.plateBlurb {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.open {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+  margin-top: 6px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+  transition: gap 0.35s var(--ease-out), background-color 0.3s ease;
+}
+
+.open:hover {
+  gap: 16px;
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  /* Wide type: ENDURANCE plus its number has to fit 358px. */
+  .page {
+    --fs: 10.6vw;
+  }
+
+  .name {
+    max-width: 100%;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .num {
+    font-size: 9px;
+  }
+
+  .top {
+    top: 100px;
+  }
+
+  .plate {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    padding: 36px var(--gutter) max(14px, env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--ink) 58%, rgb(5 5 6 / 0));
+    translate: none;
+  }
+
+  .plateIn {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding-top: 12px;
+  }
+
+  .plateCount,
+  .plateMeta {
+    grid-column: 1;
+  }
+
+  .plateTitle,
+  .plateBlurb,
+  .plateFormat {
+    display: none;
+  }
+
+  .open {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .hair,
+  .plateIn {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---------- Case hero (components/work/CaseHero.tsx) ---------- */
+.caseHero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100svh;
+  box-sizing: border-box;
+  padding: var(--gutter);
+  padding-bottom: clamp(28px, 7vh, 72px);
+}
+
+/* A template's own hero layer (e.g. the stills strobe), between the stage and the title. */
+.heroLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.back {
+  position: absolute;
+  top: clamp(92px, 13vh, 130px);
+  left: var(--gutter);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.caseBottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.caseHead {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.caseMeta {
+  margin: 0;
+  overflow: hidden;
+  color: rgb(241 239 233 / 0.78);
+}
+
+.caseTitle {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(44px, 8.4vw, 150px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* A template layer can paint the title with a picture: data-fill + --title-fill on the hero. */
+.caseHero[data-fill] .caseTitle .rise {
+  background: var(--title-fill) center / cover fixed;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.caseFoot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* The project's key colour, once, small: a short rule that draws in under the title. */
+.caseRule {
+  flex: none;
+  width: 44px;
+  height: 2px;
+  background: var(--key-ui, var(--accent));
+  transform-origin: left center;
+  animation: draw 1.1s var(--ease-out) 0.3s both;
+}
+
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.casePlay {
+  flex: none;
+  animation: fade 0.9s ease 0.35s both;
+}
+
+.rise {
+  display: block;
+  animation: rise 1s var(--ease-out) 0.05s both;
+}
+
+@keyframes rise {
+  from {
+    translate: 0 105%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation-name: fade;
+  }
+
+  .caseRule {
+    animation: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .caseBottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+}

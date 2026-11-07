@@ -1,0 +1,388 @@
+/* Work index: short heading, then an edge-to-edge grid of 16:9 car pictures with 2px ink seams. */
+.page {
+  position: relative;
+  z-index: 1;
+  padding-bottom: clamp(56px, 8vw, 112px);
+  background: transparent; /* the contour lines (AliveBackground) show through */
+}
+
+/* Keeps the header readable while bright pictures (the white McLaren garage) pass under it. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: clamp(88px, 10vw, 150px);
+  background: linear-gradient(rgb(5 5 6 / 0.62), rgb(5 5 6 / 0.28) 55%, rgb(5 5 6 / 0));
+  pointer-events: none;
+}
+
+/* ---------- Heading ---------- */
+.head {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "eyebrow"
+    "title"
+    "lede";
+  gap: 16px;
+  padding: clamp(112px, 13vw, 200px) var(--gutter) clamp(32px, 4.4vw, 64px);
+}
+
+.eyebrow {
+  grid-area: eyebrow;
+  margin: 0;
+  color: var(--muted);
+}
+
+.count {
+  color: var(--accent);
+}
+
+.title {
+  grid-area: title;
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(40px, 5.4vw, 92px);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+
+.lede {
+  grid-area: lede;
+  max-width: 36ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.45;
+}
+
+@media (min-width: 760px) {
+  .head {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "eyebrow eyebrow"
+      "title lede";
+    align-items: end;
+    column-gap: 48px;
+  }
+
+  .lede {
+    padding-bottom: 0.3em;
+  }
+}
+
+/* ---------- Grid ---------- */
+.grid {
+  --pad: clamp(14px, 1.5vw, 24px);
+  --name: clamp(22px, 6.2vw, 34px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    --name: clamp(22px, 3.2vw, 32px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* 9 projects in 2 columns: the first one runs full width, so no tile is left alone at the end. */
+  .item:first-child {
+    --name: clamp(28px, 4.6vw, 48px);
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid {
+    --name: clamp(24px, 2.3vw, 40px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .item:first-child {
+    --name: inherit;
+    grid-column: auto;
+  }
+}
+
+.item {
+  min-width: 0;
+}
+
+.tile {
+  position: relative;
+  display: block;
+  color: var(--paper);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The focus ring is drawn on the picture's overlay (an inset outline would sit under the picture); the
+   transparent outline still shows in forced-colours mode. */
+.tile:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+
+.frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  isolation: isolate;
+  /* Placeholder while the picture loads: a deep tint of the project's own key colour. */
+  background: color-mix(in srgb, var(--key) 16%, var(--ink-2));
+}
+
+.pic,
+.pic img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pic img {
+  object-fit: cover;
+}
+
+/* Soft shade under the label (always), and a light darkening of the one picture in focus. */
+.frame::after,
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.frame::after {
+  background: linear-gradient(to top, rgb(5 5 6 / 0.8), rgb(5 5 6 / 0.34) 28%, rgb(5 5 6 / 0) 52%);
+}
+
+.frame::before {
+  background: rgb(5 5 6 / 0.4);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+/* At rest: name + kind, small, bottom-left. */
+.label {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: var(--pad);
+  z-index: 2;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  /* The global label size, a touch larger on big screens where the tiles are 600px+ wide. */
+  font-size: clamp(11px, 0.68vw, 13px);
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.4);
+  transition: opacity 0.25s ease, translate 0.45s var(--ease-out);
+}
+
+.labelName {
+  color: var(--paper);
+}
+
+.labelKind {
+  color: rgb(241 239 233 / 0.78);
+}
+
+/* In focus: the name large, and where the link goes. Nothing else. */
+.focus {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: var(--pad);
+  z-index: 2;
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  pointer-events: none;
+  text-shadow: 0 1px 14px rgb(0 0 0 / 0.35);
+}
+
+.focusName {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: var(--name);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-wrap: balance;
+  transform-origin: 0 100%;
+}
+
+.focusCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rule {
+  width: 22px;
+  height: 2px;
+  background: var(--key);
+}
+
+.chev {
+  margin-left: -2px;
+}
+
+/* Under-picture caption: touch screens only (below). */
+.cap {
+  display: none;
+}
+
+/* Mouse: the focus layer waits for hover (or keyboard focus). */
+@media (hover: hover) and (pointer: fine) {
+  .focus > * {
+    opacity: 0;
+    translate: 0 10px;
+    transition: opacity 0.3s ease, translate 0.55s var(--ease-out), scale 0.55s var(--ease-out);
+  }
+
+  .focusName {
+    scale: 0.6;
+  }
+
+  .focusCta {
+    transition-delay: 0.06s;
+  }
+
+  .tile:hover .frame::before {
+    opacity: 1;
+  }
+
+  .tile:hover .label {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+
+  .tile:hover .focus > * {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* Keyboard focus shows the same state, whatever the pointer, plus a ring. */
+.tile:focus-visible .frame::before {
+  opacity: 1;
+  box-shadow: inset 0 0 0 2px var(--paper);
+}
+
+.tile:focus-visible .label {
+  opacity: 0;
+  translate: 0 -8px;
+}
+
+.tile:focus-visible .focus > * {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+/* Touch screens: no hover, so the name sits under every picture (display type, with the kind and a
+   chevron), and the picture stays clear of text. A tap darkens the picture for a moment. */
+@media not ((hover: hover) and (pointer: fine)) {
+  .label,
+  .focus,
+  .frame::after {
+    display: none;
+  }
+
+  .tile:active .frame::before {
+    opacity: 1;
+    transition-duration: 0.1s;
+  }
+
+  .cap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name chev"
+      "kind chev";
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 7px;
+    padding: 13px var(--gutter) 21px;
+  }
+
+  .capName {
+    grid-area: name;
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 125;
+    font-weight: 600;
+    font-size: var(--cap);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+
+  .capKind {
+    grid-area: kind;
+    color: var(--muted);
+  }
+
+  .capChev {
+    grid-area: chev;
+    width: 16px;
+    height: 16px;
+    color: var(--paper);
+  }
+
+  .grid {
+    --cap: clamp(19px, 5.4vw, 24px);
+  }
+
+  @media (min-width: 640px) {
+    .grid {
+      --cap: clamp(18px, 2.6vw, 24px);
+    }
+
+    .item:first-child {
+      --cap: clamp(22px, 3.4vw, 30px);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .item:first-child {
+      --cap: inherit;
+    }
+  }
+}
+
+/* First view: a gentle fade, tiles that arrive together sweep in left to right (WorkGrid sets --d). */
+.page[data-reveal] .tile {
+  transition: opacity 0.9s ease var(--d, 0ms);
+}
+
+.page[data-reveal] .tile:not([data-in]) {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame::before,
+  .label,
+  .focus > * {
+    transition: none !important;
+  }
+
+  .focusName {
+    scale: 1 !important;
+  }
+}
+
+/* Unlinked tiles (CASE_PAGES_LINKED off): plain pictures, no pointer cursor. */
+.tile[data-static] {
+  cursor: default;
+}

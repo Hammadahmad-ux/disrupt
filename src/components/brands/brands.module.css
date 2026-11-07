@@ -1,0 +1,210 @@
+.section {
+  position: relative;
+  z-index: 1;
+  padding: clamp(88px, 11vw, 170px) 0 clamp(96px, 12vw, 190px);
+  overflow: hidden;
+  color: var(--paper);
+}
+
+/* ---------- label row ---------- */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 var(--gutter);
+  margin-bottom: clamp(36px, 4.4vw, 64px);
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-weight: 500;
+  color: var(--paper);
+}
+
+.dash {
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.count {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* ---------- marquee stage ---------- */
+.stage {
+  --fw: clamp(220px, 27vw, 440px);
+  --open: 1;
+  --pad: clamp(14px, 1.7vw, 28px);
+  position: relative;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(52px, 8.4vw, 148px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.layer {
+  padding-block: var(--pad);
+}
+
+.lit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* Soft-edged band around the beam (feathered with a mask, no hard box). */
+  --band: calc(var(--fw) * var(--open) * 0.62);
+  -webkit-mask-image: linear-gradient(90deg, transparent calc(50% - var(--band)), #000 calc(50% - var(--band) * 0.35), #000 calc(50% + var(--band) * 0.35), transparent calc(50% + var(--band)));
+  mask-image: linear-gradient(90deg, transparent calc(50% - var(--band)), #000 calc(50% - var(--band) * 0.35), #000 calc(50% + var(--band) * 0.35), transparent calc(50% + var(--band)));
+  pointer-events: none;
+}
+
+.row {
+  overflow: hidden;
+  padding-block: 0.03em 0.06em;
+}
+
+.row + .row {
+  margin-top: -0.02em;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.set {
+  display: flex;
+  flex: none;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+
+.name {
+  display: block;
+  white-space: nowrap;
+}
+
+.chev {
+  flex: none;
+  width: 0.3em;
+  height: 0.5em;
+  margin: 0 0.42em;
+  transform: translateY(-0.02em);
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: calc(var(--s, 1) * 0.72em);
+  user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Top row bright, bottom row dimmed; inside the glass viewfinder they swap. */
+.solid .logo {
+  opacity: 0.95;
+}
+
+.outline .logo {
+  opacity: 0.26;
+}
+
+.lit .outline .logo {
+  opacity: 1;
+}
+
+.solid .name {
+  color: var(--paper);
+}
+
+.outline .name {
+  /* The variable font has overlapping contours, so a plain text-stroke draws lines inside the letters.
+     Painting the stroke first and an ink fill over it hides the inner lines and leaves a clean outline. */
+  color: var(--ink);
+  -webkit-text-stroke: 3px rgb(241 239 233 / 0.46);
+  paint-order: stroke fill;
+}
+
+.layer:not(.lit) .chev {
+  color: rgb(241 239 233 / 0.22);
+}
+
+.lit .chev {
+  color: var(--accent);
+}
+
+.lit .outline .name {
+  -webkit-text-stroke-color: rgb(241 239 233 / 0.85);
+}
+
+/* ---------- glass viewfinder ---------- */
+.readout {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 18px);
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  white-space: pre;
+  color: var(--muted);
+  opacity: var(--open);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgb(255 59 31 / 0.7);
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding-bottom: 88px;
+  }
+
+  .stage {
+    --fw: 46vw;
+    font-size: clamp(46px, 14vw, 78px);
+    font-variation-settings: "wdth" 118;
+  }
+
+  .outline .name {
+    -webkit-text-stroke-width: 2.4px;
+  }
+
+  .corner {
+    width: 10px;
+    height: 10px;
+  }
+
+  .corner[data-c="tl"], .corner[data-c="tr"] { top: 7px; }
+  .corner[data-c="bl"], .corner[data-c="br"] { bottom: 7px; }
+  .corner[data-c="tl"], .corner[data-c="bl"] { left: 7px; }
+  .corner[data-c="tr"], .corner[data-c="br"] { right: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    will-change: auto;
+  }
+}

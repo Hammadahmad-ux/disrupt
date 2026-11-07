@@ -1,0 +1,547 @@
+/* Showreel section: a tall scroll track with a sticky stage. The bent screen (WebGL canvas) flattens
+   into the frame box below, then PLAY and REEL slide in around a round glass button. */
+
+.section {
+  position: relative;
+  z-index: 1;
+  height: 250svh;
+  color: var(--paper);
+}
+
+.stage {
+  /* Frame box: inset by the gutter at the sides, clear of the fixed header on top, room for the
+     caption row below. Wide screens cap the frame at 2.3:1, tall ones at 1.3:1. */
+  --top: clamp(84px, 12svh, 118px);
+  --bottom: clamp(70px, 10.5svh, 100px);
+  --avail: calc(100svh - var(--top) - var(--bottom));
+  --fw: min(100% - 2 * var(--gutter), var(--avail) * 2.3);
+  --fh: min(var(--avail), (100vw - 2 * var(--gutter)) / 1.3);
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: clip;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.frame {
+  position: absolute;
+  left: calc(50% - var(--fw) / 2);
+  top: calc(var(--top) + (var(--avail) - var(--fh)) / 2);
+  width: var(--fw);
+  height: var(--fh);
+  border-radius: var(--radius-lg);
+  container-type: inline-size;
+  transform-origin: 50% 50%;
+  /* Used for the frame's own sweep in the CSS fallback (no WebGL). */
+  --sweep: -60%;
+}
+
+/* DOM picture: the visible frame without WebGL, the texture source with it. */
+.media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--ink-2);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.16),
+    0 40px 90px -40px rgb(0 0 0 / 0.8);
+}
+
+.media::before,
+.media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Rim light and legibility pool (fallback only; WebGL draws its own). */
+.media::before {
+  z-index: 1;
+  background: radial-gradient(ellipse 44% 40% at 50% 50%, rgb(0 0 0 / 0.32), transparent 75%);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 0.32),
+    inset -1px -1px 0 rgb(255 255 255 / 0.08);
+}
+
+.media::after {
+  z-index: 1;
+  inset: -10% -40%;
+  background: linear-gradient(102deg, transparent 42%, rgb(255 255 255 / 0.09) 48%, rgb(255 255 255 / 0.16) 50%, transparent 54%);
+  transform: translateX(var(--sweep));
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* With WebGL the DOM picture is only a texture source. */
+.section[data-gl="on"] .media {
+  background: none;
+  box-shadow: none;
+}
+
+.section[data-gl="on"] .media::before,
+.section[data-gl="on"] .media::after {
+  display: none;
+}
+
+.section[data-gl="on"] .video {
+  opacity: 0;
+}
+
+/* ---------- the hit area: the whole frame is the play button ---------- */
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3.2cqi, 56px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.section[data-live="off"] .hit {
+  pointer-events: none;
+}
+
+.hit:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 5px;
+}
+
+.word {
+  /* Equal boxes either side keep the glass button on the frame's centre line. */
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(48px, 11.4cqi, 200px);
+  line-height: 0.8;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--paper);
+  text-shadow: 0 2px 40px rgb(0 0 0 / 0.28);
+  transition: translate 0.9s var(--ease-out);
+  user-select: none;
+}
+
+.word[data-side="l"] {
+  justify-content: flex-end;
+}
+
+.char {
+  display: inline-block;
+  padding-block: 0.08em;
+  will-change: transform;
+}
+
+.hit:hover .word[data-side="l"] {
+  translate: -1.4cqi 0;
+}
+
+.hit:hover .word[data-side="r"] {
+  translate: 1.4cqi 0;
+}
+
+/* Round glass button with the logo's ">" chevron as the play mark. */
+.glassWrap {
+  flex: none;
+  display: block;
+  will-change: transform;
+}
+
+.glass {
+  --d: clamp(82px, 10.6cqi, 156px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--d);
+  height: var(--d);
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(70% 46% at 50% 4%, rgb(255 255 255 / 0.34), transparent 70%),
+    radial-gradient(120% 120% at 28% 18%, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.05) 52%, rgb(255 255 255 / 0.14) 100%);
+  border: 1px solid rgb(255 255 255 / 0.42);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.7),
+    inset 0 -1px 1px rgb(255 255 255 / 0.18),
+    inset 0 -18px 30px rgb(0 0 0 / 0.14),
+    0 0 0 6px rgb(255 255 255 / 0.04),
+    0 26px 60px -14px rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(18px) saturate(1.7) brightness(1.18);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7) brightness(1.18);
+  translate: var(--mx, 0px) var(--my, 0px);
+  transition:
+    scale 0.7s var(--ease-out),
+    translate 0.9s var(--ease-out),
+    border-color 0.5s ease;
+}
+
+/* The light sweep: a soft band that crosses the glass every few seconds. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 38%, rgb(255 255 255 / 0.42) 50%, transparent 62%);
+  transform: translateX(-80%);
+  animation: glassSweep 5.2s var(--ease-out) infinite;
+}
+
+/* Thin inner ring, like the polished edge of a lens. */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  pointer-events: none;
+}
+
+@keyframes glassSweep {
+  0%,
+  58% {
+    transform: translateX(-80%);
+  }
+  86%,
+  100% {
+    transform: translateX(80%);
+  }
+}
+
+.chev {
+  width: 30%;
+  height: auto;
+  display: block;
+  color: var(--paper);
+  translate: 7% 0;
+  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.25));
+  transition: translate 0.7s var(--ease-out);
+}
+
+.hit:hover .glass,
+.hit:focus-visible .glass {
+  scale: 1.08;
+  border-color: rgb(255 255 255 / 0.6);
+}
+
+.hit:hover .chev {
+  translate: 20% 0;
+}
+
+/* Viewfinder marks built from the logo's chevron, one in each corner, pointing out. */
+.mark {
+  position: absolute;
+  width: clamp(13px, 1.25cqi, 18px);
+  height: auto;
+  color: rgb(241 239 233 / 0.86);
+  pointer-events: none;
+}
+
+.mark[data-c="tl"] {
+  top: clamp(14px, 1.6cqi, 26px);
+  left: clamp(14px, 1.6cqi, 26px);
+  rotate: 225deg;
+}
+
+.mark[data-c="tr"] {
+  top: clamp(14px, 1.6cqi, 26px);
+  right: clamp(14px, 1.6cqi, 26px);
+  rotate: -45deg;
+}
+
+.mark[data-c="br"] {
+  bottom: clamp(14px, 1.6cqi, 26px);
+  right: clamp(14px, 1.6cqi, 26px);
+  rotate: 45deg;
+}
+
+.mark[data-c="bl"] {
+  bottom: clamp(14px, 1.6cqi, 26px);
+  left: clamp(14px, 1.6cqi, 26px);
+  rotate: 135deg;
+}
+
+.tag {
+  position: absolute;
+  top: calc(clamp(14px, 1.6cqi, 26px) - 5px);
+  left: calc(clamp(14px, 1.6cqi, 26px) + clamp(13px, 1.25cqi, 18px) + 10px);
+  margin: 0;
+  padding: 5px 11px 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(5 5 6 / 0.34);
+  backdrop-filter: blur(10px) saturate(1.3);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: rgb(241 239 233 / 0.9);
+  pointer-events: none;
+}
+
+.tagDot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 1px;
+  animation: blink 1.6s steps(2, jump-none) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* ---------- caption row under the frame ---------- */
+.caption {
+  position: absolute;
+  left: calc(50% - var(--fw) / 2);
+  width: var(--fw);
+  top: calc(var(--top) + (var(--avail) + var(--fh)) / 2 + clamp(14px, 2svh, 22px));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 36px);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+.caption p {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.dim {
+  color: var(--muted);
+}
+
+.sep {
+  margin: 0 0.7em;
+  color: var(--muted);
+}
+
+.right {
+  justify-self: end;
+  display: flex;
+  gap: 0.9em;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.credit {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+/* Edit strip: one segment per shot in the reel, filled as the muted preview plays. */
+.strip {
+  display: flex;
+  gap: 3px;
+  height: 9px;
+  align-items: center;
+  max-width: 560px;
+  width: 100%;
+  justify-self: center;
+}
+
+.seg {
+  position: relative;
+  height: 2px;
+  border-radius: 1px;
+  background: rgb(241 239 233 / 0.18);
+  overflow: hidden;
+  transition: height 0.4s var(--ease-out);
+}
+
+.seg[data-on] {
+  height: 4px;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+.seg[data-on] .fill {
+  background: linear-gradient(to right, var(--paper) calc(100% - 3px), var(--accent) calc(100% - 3px));
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 700px) {
+  .section {
+    height: 220svh;
+  }
+
+  .stage {
+    --top: clamp(80px, 13svh, 112px);
+    --bottom: clamp(92px, 15svh, 128px);
+    --fw: calc(100% - 2 * var(--gutter));
+    --fh: min(var(--avail), (100vw - 2 * var(--gutter)) * 1.25);
+  }
+
+  .hit {
+    flex-direction: column;
+    gap: clamp(10px, 4cqi, 22px);
+  }
+
+  .word {
+    flex: none;
+    font-size: clamp(56px, 25cqi, 120px);
+  }
+
+  .hit:hover .word[data-side="l"],
+  .hit:hover .word[data-side="r"] {
+    translate: none;
+  }
+
+  .glass {
+    --d: clamp(76px, 25cqi, 108px);
+  }
+
+  .mark {
+    width: 12px;
+  }
+
+  .tag {
+    top: 9px;
+    left: calc(14px + 12px + 8px);
+    font-size: 9.5px;
+    line-height: 12px;
+  }
+
+  .caption {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 14px;
+    column-gap: 16px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .wide {
+    display: none;
+  }
+
+  .strip {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    max-width: none;
+  }
+}
+
+/* Narrow phones: the caption keeps the label and the live timecode only. */
+@media (max-width: 480px) {
+  .credit {
+    display: none;
+  }
+}
+
+/* ---------- reduced motion: a still, straight frame with the button ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    height: auto;
+    padding-block: clamp(72px, 10vw, 140px);
+  }
+
+  .stage {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
+
+  .canvas {
+    display: none;
+  }
+
+  .frame {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: calc(100% - 2 * var(--gutter));
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-inline: auto;
+  }
+
+  .caption {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: calc(100% - 2 * var(--gutter));
+    margin: 18px auto 0;
+  }
+
+  .glass::before,
+  .tagDot {
+    animation: none;
+  }
+
+  /* Only the poster shows here, so there is no preview to label. */
+  .tag {
+    display: none;
+  }
+
+  .word,
+  .glass,
+  .chev {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 700px) {
+  .frame {
+    aspect-ratio: 4 / 5;
+  }
+}

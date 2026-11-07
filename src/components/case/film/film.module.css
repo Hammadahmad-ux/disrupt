@@ -1,0 +1,1251 @@
+/* Film case template: FilmBody, ShotsChapter ("In this shot"), FramesRhythm, FilmStills.
+   Tokens from CaseShell: --key, --key-ui, --surface, --primer; data-accent on the shell root decides
+   where the key colour shows (shared .keyRule / .keyNum / .keyChev, plus the rules below). */
+
+.body {
+  position: relative;
+}
+
+.headMain {
+  display: grid;
+  gap: clamp(16px, 2vw, 26px);
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A ring with the logo's ">" notch (the chevron takes the key colour on "chevron" pages). */
+.ring {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition:
+    background-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out);
+}
+
+.ring svg {
+  width: 10px;
+  height: 10px;
+  translate: 1px 0;
+}
+
+/* "Play from 0:05": a glass pill that rises on hover over a frame. */
+.framePlay {
+  position: absolute;
+  right: clamp(10px, 1.2vw, 16px);
+  bottom: clamp(10px, 1.2vw, 16px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 16px 0 8px;
+  border: 1px solid rgb(241 239 233 / 0.3);
+  border-radius: 999px;
+  background: rgb(8 8 10 / 0.34);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  backdrop-filter: blur(12px) saturate(1.3);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 112;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--paper);
+  opacity: 0;
+  translate: 0 8px;
+  pointer-events: none;
+  transition:
+    opacity 0.35s var(--ease-out),
+    translate 0.45s var(--ease-out);
+}
+
+/* ================= In this shot ================= */
+.chapter {
+  position: relative;
+  padding: clamp(80px, 10vw, 150px) var(--gutter) 0;
+}
+
+.chapterHead {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(28px, 6vw, 100px);
+  align-items: end;
+  padding-bottom: clamp(36px, 4.4vw, 64px);
+  border-bottom: 1px solid var(--line);
+}
+
+.headBox {
+  align-self: end;
+}
+
+/* Pulled up under the head so the centred viewer does not open on an empty band. */
+.shotsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+  column-gap: clamp(28px, 4.4vw, 72px);
+  margin-top: -16svh;
+}
+
+.chapter[data-side="right"] .shotsGrid {
+  grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+}
+
+.chapter[data-side="right"] .viewerCol {
+  order: 2;
+}
+
+.viewerCol {
+  position: relative;
+  min-width: 0;
+}
+
+/* The viewer holds mid-screen while the cards pass (a little low, to clear the header). */
+.viewerSticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: clamp(56px, 8vh, 84px);
+  box-sizing: border-box;
+}
+
+.viewer {
+  display: grid;
+  gap: 14px;
+}
+
+/* 5:2 films: a letterbox. Slate and ruler live in the black matte above and below the picture. */
+.viewer[data-wide] {
+  gap: clamp(18px, 2.6vw, 38px);
+  padding: clamp(16px, 1.8vw, 26px);
+  border-radius: 3px;
+  background: #000;
+}
+
+.slate {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  min-width: 0;
+}
+
+.slateN {
+  flex: none;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.slateTitle {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.roll {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: roll 0.6s var(--ease-out) both;
+}
+
+@keyframes roll {
+  from {
+    opacity: 0;
+    translate: 0 100%;
+  }
+}
+
+.slateTags {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* The frame: a button that plays the film from this shot. */
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--ar);
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #1a1a1e;
+  color: var(--paper);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 4px;
+}
+
+.frame:hover .framePlay,
+.frame:focus-visible .framePlay {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.live,
+.still,
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.live {
+  object-fit: cover;
+}
+
+.still img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fadeIn 0.6s ease both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.canvas {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.chapter[data-gl="on"] .canvas {
+  opacity: 1;
+}
+
+/* WebGL draws the shot: the plain picture is not needed (and not fetched). While the canvas waits for its
+   first frame ("wait") the box shows the shot's blurred stand-in (inline background on .frame). */
+.chapter[data-gl="on"] .still,
+.chapter[data-gl="wait"] .still {
+  display: none;
+}
+
+/* Ruler: the whole film as a line, each shot a segment, the playhead on the film's time. */
+.ruler {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Tally light: on while the shot plays from the film. */
+.tally {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(241 239 233 / 0.2);
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.chapter[data-live] .tally {
+  background: var(--accent);
+  box-shadow: 0 0 10px rgb(255 59 31 / 0.7);
+}
+
+.tcNow {
+  min-width: 9ch;
+}
+
+.tcEnd {
+  color: var(--muted);
+}
+
+.track {
+  position: relative;
+  height: 16px;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--line);
+}
+
+.seg {
+  position: absolute;
+  top: calc(50% - 2px);
+  height: 4px;
+  min-width: 2px;
+  background: rgb(241 239 233 / 0.22);
+  transition: background-color 0.4s ease;
+}
+
+.seg[data-on] {
+  background: var(--paper);
+}
+
+:global([data-accent="numbers"]) .seg[data-on] {
+  background: var(--key-ui);
+}
+
+/* A zero-width carrier placed by left (a full-width translated box would widen the page). */
+.headWrap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--t, 0) * 100%);
+  width: 0;
+  transition: left 0.8s var(--ease-out);
+  pointer-events: none;
+}
+
+.chapter[data-live] .headWrap {
+  transition: none;
+}
+
+/* The logo's notch as the playhead: a small chevron pointing down at the film's time. */
+.playhead {
+  position: absolute;
+  left: 0;
+  top: -6px;
+  width: 8px;
+  height: 8px;
+  translate: -50% 0;
+  rotate: 45deg;
+  border-right: 1.5px solid var(--paper);
+  border-bottom: 1.5px solid var(--paper);
+}
+
+/* Shot cards: the one on the focus line is painted, the rest wait in primer. */
+.cards {
+  min-width: 0;
+  margin: 0;
+  padding: 27svh 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-height: 46svh;
+  padding: clamp(24px, 3vw, 40px) 0;
+  border-top: 1px solid var(--line);
+  box-sizing: border-box;
+}
+
+.card:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.cardMark {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  transform-origin: left center;
+  scale: 0 1;
+  transition: scale 0.8s var(--ease-out);
+}
+
+.card[data-on] .cardMark {
+  scale: 1 1;
+}
+
+.cardPic {
+  display: none;
+}
+
+.cardText {
+  display: grid;
+  gap: clamp(16px, 1.8vw, 24px);
+  min-width: 0;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* The shot number goes from primer to paint under a passing light when its card is on the line. */
+.num {
+  --paint: var(--paper);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(56px, 5.4vw, 92px);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  background-image: linear-gradient(100deg, var(--paint) 0% 36%, #fff6ea 44%, var(--paint) 49%, var(--primer) 57% 100%);
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: background-position 1.1s var(--ease-out);
+}
+
+.card[data-on] .num {
+  background-position: 0 0;
+}
+
+:global([data-accent="numbers"]) .num {
+  --paint: var(--key-ui);
+}
+
+.cardTc {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+  white-space: nowrap;
+}
+
+.cardTc svg {
+  opacity: 0.6;
+}
+
+.dim {
+  display: grid;
+  gap: clamp(14px, 1.6vw, 20px);
+  transition: opacity 0.6s ease;
+}
+
+.card:not([data-on]) .dim {
+  opacity: 0.34;
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 650;
+  font-size: clamp(22px, 2.1vw, 34px);
+  line-height: 1;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+}
+
+.builtBox {
+  padding: 17px 18px 15px;
+}
+
+.builtBox p {
+  max-width: 46ch;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.cardFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 6px 10px 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+.playFrom {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--paper);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.playFrom:hover .ring {
+  background: var(--paper);
+}
+
+.playFrom:hover .ring svg {
+  color: var(--ink);
+}
+
+/* ---------- "stage" viewer (layout.viewer): the shot fills the screen, the cards roll over it ----------
+   Desktop and landscape only (STAGE_MQ in ShotsChapter.tsx); phones and reduced motion keep the split. The
+   cards sit on the side away from layout.shotsSide, over a scrim that only darkens that side. */
+@media (min-width: 900px) and (min-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
+  .chapter[data-viewer="stage"] .shotsGrid,
+  .chapter[data-viewer="stage"][data-side="right"] .shotsGrid {
+    grid-template-columns: minmax(0, 1fr);
+    margin: clamp(48px, 6vw, 96px) calc(-1 * var(--gutter)) 0;
+  }
+
+  .chapter[data-viewer="stage"] .viewerCol,
+  .chapter[data-viewer="stage"] .cards {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .chapter[data-viewer="stage"] .viewerSticky {
+    display: block;
+    padding: 0;
+  }
+
+  .chapter[data-viewer="stage"] .viewer {
+    position: relative;
+    display: block;
+    height: 100%;
+  }
+
+  .chapter[data-viewer="stage"] .frame {
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+
+  /* Scrim: the header band, the ruler band, and the side the cards roll over. */
+  .chapter[data-viewer="stage"] .viewer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgb(5 5 6 / 0.62), rgb(5 5 6 / 0) 24%),
+      linear-gradient(to top, rgb(5 5 6 / 0.72), rgb(5 5 6 / 0) 24%),
+      linear-gradient(to left, rgb(5 5 6 / 0.9) 0%, rgb(5 5 6 / 0.66) 26%, rgb(5 5 6 / 0.14) 46%, rgb(5 5 6 / 0) 58%);
+  }
+
+  .chapter[data-viewer="stage"][data-side="right"] .viewer::after {
+    background:
+      linear-gradient(to bottom, rgb(5 5 6 / 0.62), rgb(5 5 6 / 0) 24%),
+      linear-gradient(to top, rgb(5 5 6 / 0.72), rgb(5 5 6 / 0) 24%),
+      linear-gradient(to right, rgb(5 5 6 / 0.9) 0%, rgb(5 5 6 / 0.66) 26%, rgb(5 5 6 / 0.14) 46%, rgb(5 5 6 / 0) 58%);
+  }
+
+  /* Slate top and ruler bottom, on the picture's side. */
+  .chapter[data-viewer="stage"] .slate,
+  .chapter[data-viewer="stage"] .ruler {
+    position: absolute;
+    left: var(--gutter);
+    z-index: 3;
+    width: min(52%, 760px);
+  }
+
+  .chapter[data-viewer="stage"] .slate {
+    top: clamp(104px, 15vh, 140px);
+  }
+
+  .chapter[data-viewer="stage"] .ruler {
+    bottom: clamp(26px, 4.4vh, 44px);
+  }
+
+  .chapter[data-viewer="stage"][data-side="right"] .slate,
+  .chapter[data-viewer="stage"][data-side="right"] .ruler {
+    left: auto;
+    right: var(--gutter);
+  }
+
+  .chapter[data-viewer="stage"] .slateTitle {
+    font-size: 15px;
+  }
+
+  .chapter[data-viewer="stage"] .framePlay {
+    left: var(--gutter);
+    right: auto;
+    bottom: calc(clamp(26px, 4.4vh, 44px) + 44px);
+  }
+
+  .chapter[data-viewer="stage"][data-side="right"] .framePlay {
+    left: auto;
+    right: var(--gutter);
+  }
+
+  .chapter[data-viewer="stage"] .cards {
+    position: relative;
+    z-index: 2;
+    justify-self: end;
+    width: min(36vw, 560px);
+    padding: 44svh var(--gutter) 46svh;
+    box-sizing: border-box;
+  }
+
+  .chapter[data-viewer="stage"][data-side="right"] .cards {
+    justify-self: start;
+  }
+
+  .chapter[data-viewer="stage"] .card {
+    min-height: 58svh;
+    border-top-color: rgb(241 239 233 / 0.16);
+  }
+
+  .chapter[data-viewer="stage"] .card:last-child {
+    border-bottom-color: rgb(241 239 233 / 0.16);
+  }
+
+  /* The draft tag cuts the dashed box edge with the page colour; over the picture it reads as a chip. */
+  .chapter[data-viewer="stage"] .builtBox {
+    background: rgb(5 5 6 / 0.5);
+  }
+
+  .chapter[data-viewer="stage"] .num {
+    font-size: clamp(64px, 6.4vw, 112px);
+  }
+}
+
+/* ================= Frames rhythm ================= */
+.frames {
+  position: relative;
+  padding: clamp(88px, 11vw, 168px) 0;
+}
+
+/* Back to back with the shot chapter, the runway's own air is enough. */
+.chapter + .frames,
+.stills + .frames {
+  padding-top: clamp(32px, 4vw, 64px);
+}
+
+.frames + .chapter {
+  padding-top: 0;
+}
+
+.framesHead {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(28px, 6vw, 100px);
+  align-items: end;
+  padding: 0 var(--gutter) clamp(40px, 5vw, 80px);
+}
+
+.headAside {
+  justify-self: end;
+}
+
+.fig {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+}
+
+.shot {
+  --sweep: 1;
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--ar);
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: #1a1a1e;
+  color: var(--paper);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shot:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 4px;
+}
+
+.shot:hover .framePlay,
+.shot:focus-visible .framePlay {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Overscanned so the parallax never shows an edge. */
+.par {
+  position: absolute;
+  inset: 0;
+  scale: 1.08;
+}
+
+.par picture,
+.par img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Matte primer that the light leaves behind it as paint (--sweep 0..1, scroll-linked). */
+.primerLayer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #34343a, #27272c 70%, #1f1f23);
+  -webkit-mask-image: linear-gradient(
+    100deg,
+    transparent calc(var(--sweep) * 140% - 22%),
+    #000 calc(var(--sweep) * 140% - 14%)
+  );
+  mask-image: linear-gradient(100deg, transparent calc(var(--sweep) * 140% - 22%), #000 calc(var(--sweep) * 140% - 14%));
+}
+
+.band {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent calc(var(--sweep) * 140% - 36%),
+    rgb(255 247 236 / 0.07) calc(var(--sweep) * 140% - 26%),
+    rgb(255 249 242 / 0.5) calc(var(--sweep) * 140% - 18.5%),
+    rgb(255 247 236 / 0.07) calc(var(--sweep) * 140% - 11%),
+    transparent calc(var(--sweep) * 140% - 1%)
+  );
+}
+
+.figcap {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  min-width: 0;
+  padding-top: 14px;
+}
+
+.capTitle {
+  min-width: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 650;
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.capTc {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+/* full: a full-bleed run */
+.fullStack {
+  display: grid;
+  gap: clamp(64px, 9vw, 140px);
+}
+
+.fullStack .figcap {
+  padding-inline: var(--gutter);
+}
+
+/* 5:2 in the full-bleed run: black letterbox bars with the ratio and timecode in them. */
+.matte {
+  position: relative;
+  padding-block: clamp(30px, 5.2vw, 80px);
+  background: #000;
+}
+
+.matteTl {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  display: flex;
+  align-items: center;
+  height: clamp(30px, 5.2vw, 80px);
+  color: rgb(241 239 233 / 0.46);
+}
+
+/* The caption rides in the bottom bar of the letterbox. */
+.matte .matteCap {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 0;
+  height: clamp(30px, 5.2vw, 80px);
+  align-items: center;
+  padding: 0;
+}
+
+/* two-up: staggered pairs, the small frame drifting faster */
+.twoUp {
+  display: grid;
+  gap: clamp(64px, 9vw, 150px);
+  padding: 0 var(--gutter);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(12px, 1.6vw, 24px);
+  align-items: start;
+}
+
+.pair > :nth-child(1) {
+  grid-row: 1;
+  grid-column: 1 / span 7;
+}
+
+.pair > :nth-child(2) {
+  grid-row: 1;
+  grid-column: 9 / span 4;
+  margin-top: clamp(80px, 16vw, 240px);
+}
+
+.pair[data-flip] > :nth-child(1) {
+  grid-column: 6 / span 7;
+}
+
+.pair[data-flip] > :nth-child(2) {
+  grid-column: 1 / span 4;
+  margin-top: clamp(40px, 8vw, 120px);
+}
+
+/* offset: one frame and a studio note per row, alternating */
+.offset {
+  display: grid;
+  gap: clamp(72px, 10vw, 160px);
+  padding: 0 var(--gutter);
+}
+
+.offRow {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(12px, 1.6vw, 24px);
+  align-items: end;
+}
+
+.offRow > .fig {
+  grid-row: 1;
+  grid-column: 1 / span 8;
+}
+
+.offRow > .note {
+  grid-row: 1;
+  grid-column: 10 / span 3;
+}
+
+.offRow[data-flip] > .fig {
+  grid-column: 5 / span 8;
+}
+
+.offRow[data-flip] > .note {
+  grid-column: 1 / span 3;
+  align-self: start;
+  margin-top: clamp(24px, 4vw, 64px);
+}
+
+.note {
+  display: grid;
+  gap: 12px;
+}
+
+.noteLabel {
+  margin: 0;
+  color: var(--paper);
+}
+
+/* ================= Stills strip (McLaren) ================= */
+.stills {
+  position: relative;
+}
+
+.stillsStage {
+  position: relative;
+  padding: clamp(80px, 10vw, 140px) 0;
+}
+
+/* Desktop: the section holds while the strip runs sideways (height = 100svh + the strip's travel). */
+.stills[data-pin] {
+  height: calc(100svh + var(--travel, 0px));
+}
+
+.stills[data-pin] .stillsStage {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100svh;
+  padding: clamp(80px, 11vh, 110px) 0 clamp(24px, 4vh, 40px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.stillsHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 var(--gutter) clamp(24px, 3.6vh, 44px);
+}
+
+.stillsMeta {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.stillsMeta p {
+  margin: 0;
+}
+
+.count {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(30px, 2.8vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+
+.countOf {
+  color: var(--primer);
+}
+
+.trackWrap {
+  position: relative;
+}
+
+.stillTrack {
+  display: flex;
+  gap: clamp(14px, 1.8vw, 28px);
+  margin: 0;
+  padding: 0 var(--gutter);
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  outline-offset: 4px;
+}
+
+.stillTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.stills[data-pin] .stillTrack {
+  overflow: visible;
+  scroll-snap-type: none;
+  will-change: transform;
+}
+
+.stillItem {
+  flex: none;
+  width: min(86vw, 980px);
+  scroll-snap-align: start;
+  transition: opacity 0.6s ease;
+}
+
+.stills[data-pin] .stillItem {
+  width: calc(54svh * var(--ar));
+}
+
+.stills[data-pin] .stillItem:not([data-on]) {
+  opacity: 0.5;
+}
+
+.stillFig {
+  margin: 0;
+}
+
+.stillMedia img {
+  object-fit: cover;
+}
+
+.stillCap {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--paper);
+}
+
+/* A fixed softbox reflection the stills slide under (pinned strip only). */
+.gantry {
+  position: absolute;
+  inset: 0 0 var(--cap-h, 48px);
+  z-index: 1;
+  display: none;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(
+    100deg,
+    transparent 41%,
+    rgb(255 246 232 / 0.045) 46.5%,
+    rgb(255 249 242 / 0.2) 49.6%,
+    rgb(255 246 232 / 0.045) 52.6%,
+    transparent 58%
+  );
+}
+
+.stills[data-pin] .gantry {
+  display: block;
+}
+
+/* ================= Touch ================= */
+@media (hover: none) {
+  .framePlay {
+    height: 34px;
+    padding: 0 13px 0 6px;
+    font-size: 10px;
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ================= Phones ================= */
+@media (max-width: 760px) {
+  .chapter {
+    padding: clamp(64px, 16vw, 96px) 0 0;
+  }
+
+  .chapterHead {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-inline: var(--gutter);
+  }
+
+  /* The viewer sticks to the top (under the header) and the cards scroll under it. */
+  .shotsGrid,
+  .chapter[data-side="right"] .shotsGrid {
+    display: block;
+    margin-top: 0;
+  }
+
+  .viewerCol {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    padding-top: 76px;
+    background: var(--surface);
+  }
+
+  .viewerCol::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 36px;
+    background: linear-gradient(var(--surface), transparent);
+    pointer-events: none;
+  }
+
+  .viewerSticky {
+    position: static;
+    display: block;
+    height: auto;
+    padding: 0 0 12px;
+  }
+
+  .viewer {
+    gap: 10px;
+  }
+
+  .viewer[data-wide] {
+    padding: 12px 0;
+    border-radius: 0;
+  }
+
+  .slate,
+  .ruler {
+    padding-inline: var(--gutter);
+  }
+
+  .slate {
+    gap: 12px;
+  }
+
+  .slateTitle {
+    font-size: 12px;
+  }
+
+  .slateTags {
+    display: none;
+  }
+
+  .frame {
+    border-radius: 0;
+  }
+
+  .cards {
+    padding: 6svh var(--gutter) 34svh;
+  }
+
+  .card {
+    min-height: 32svh;
+  }
+
+  .num {
+    font-size: 52px;
+  }
+
+  .framesHead {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .headAside {
+    justify-self: start;
+  }
+
+  .pair,
+  .offRow {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 36px;
+  }
+
+  .pair > :nth-child(1),
+  .pair[data-flip] > :nth-child(1),
+  .offRow > .fig,
+  .offRow[data-flip] > .fig {
+    grid-row: auto;
+    grid-column: 1;
+  }
+
+  .pair > :nth-child(2),
+  .pair[data-flip] > :nth-child(2) {
+    grid-row: auto;
+    grid-column: 1;
+    width: 78%;
+    margin-top: 0;
+    justify-self: end;
+  }
+
+  .pair[data-flip] > :nth-child(2) {
+    justify-self: start;
+  }
+
+  .offRow > .note,
+  .offRow[data-flip] > .note {
+    grid-row: auto;
+    grid-column: 1;
+    margin-top: 0;
+  }
+
+  .stillsHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stillsMeta {
+    justify-items: start;
+  }
+}
+
+/* ================= Reduced motion: static stacked frames ================= */
+@media (prefers-reduced-motion: reduce) {
+  .viewerCol {
+    display: none;
+  }
+
+  .shotsGrid,
+  .chapter[data-side="right"] .shotsGrid {
+    display: block;
+    margin-top: 0;
+  }
+
+  .cards {
+    padding: clamp(24px, 4vw, 48px) 0 0;
+  }
+
+  .card {
+    grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+    column-gap: clamp(28px, 4.4vw, 72px);
+    align-items: center;
+    min-height: 0;
+  }
+
+  .chapter[data-side="right"] .cardPic {
+    order: 2;
+  }
+
+  .cardPic {
+    display: block;
+  }
+
+  .card:not([data-on]) .dim {
+    opacity: 1;
+  }
+
+  .num {
+    background-position: 0 0;
+    transition: none;
+  }
+
+  .cardMark {
+    scale: 1 1;
+    transition: none;
+  }
+
+  .roll,
+  .still img {
+    animation: none;
+  }
+
+  .primerLayer,
+  .band {
+    display: none;
+  }
+
+  .par {
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 760px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 20px;
+  }
+
+  .chapter[data-side="right"] .cardPic {
+    order: 0;
+  }
+
+  .cards {
+    padding-inline: var(--gutter);
+  }
+}

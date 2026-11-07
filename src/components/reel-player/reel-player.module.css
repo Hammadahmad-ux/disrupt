@@ -1,0 +1,59 @@
+.dialog {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: var(--paper);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.92);
+}
+
+.dialog[open] {
+  display: grid;
+  place-items: center;
+  animation: fadeIn 0.35s var(--ease-out);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.close {
+  position: absolute;
+  top: var(--gutter);
+  right: var(--gutter);
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid var(--paper);
+  border-radius: var(--radius);
+  background: rgb(0 0 0 / 0.4);
+  cursor: pointer;
+}
+
+.close span {
+  position: absolute;
+  left: 25%;
+  top: 50%;
+  width: 50%;
+  height: 2px;
+  background: var(--paper);
+  rotate: 45deg;
+}
+
+.close span:last-child {
+  rotate: -45deg;
+}

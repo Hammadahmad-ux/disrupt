@@ -1,0 +1,840 @@
+/* PIT WALL (work concept B): prints on a dark studio wall, a strip light over each, lights down on hover. */
+
+.root {
+  --col-gap: clamp(12px, 1.7vw, 26px);
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip; /* the colour spill reaches past the page edge */
+  min-height: 100vh;
+  padding-top: clamp(112px, 11vw, 168px);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* The room: a faint overhead wash and a darker floor, so the wall has depth before any print lights it. */
+.room {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgb(255 255 255 / 0.045), transparent 60%),
+    linear-gradient(to bottom, transparent 55%, rgb(0 0 0 / 0.5));
+  transition: opacity 0.8s ease;
+}
+
+.room::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.root[data-lit]:not([data-hoverless]) .room {
+  opacity: 0.4;
+}
+
+/* ---------- Intro ---------- */
+
+.intro {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+  align-items: end;
+  padding: 0 var(--gutter);
+  margin-bottom: clamp(3rem, 5vw, 5rem);
+}
+
+.introHead {
+  grid-column: 1 / span 7;
+}
+
+.kicker {
+  margin: 0 0 clamp(16px, 2vw, 26px);
+  color: var(--muted);
+}
+
+.kickerDot {
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(34px, 5.1vw, 86px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+.titleMask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;
+}
+
+.titleMask > span {
+  display: block;
+}
+
+.titleMask + .titleMask > span {
+  color: rgb(241 239 233 / 0.38);
+}
+
+.introSide {
+  grid-column: 9 / -1;
+}
+
+.lede {
+  margin: 0 0 22px;
+  max-width: 36ch;
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.brands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.brandBtn,
+.kind {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.brandBtn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.brandBtn:hover {
+  color: var(--paper);
+  border-color: rgb(241 239 233 / 0.4);
+}
+
+.brandBtn[aria-pressed="true"] {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.brandBtn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.count {
+  font-size: 9.5px;
+  opacity: 0.55;
+}
+
+/* ---------- The wall ---------- */
+
+.wall {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+  row-gap: clamp(4.5rem, 8vw, 9rem);
+  align-items: start;
+  padding: clamp(1.5rem, 2.4vw, 2.5rem) var(--gutter) clamp(8rem, 16vw, 14rem);
+}
+
+.print {
+  position: relative;
+  grid-column: var(--col);
+  margin-top: var(--mt);
+  container-type: inline-size;
+}
+
+.print[hidden] {
+  display: none;
+}
+
+@property --lx {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+.link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  outline-offset: 8px;
+  transition: --lx 0.9s var(--ease-out);
+}
+
+.stage {
+  position: relative;
+  isolation: isolate;
+}
+
+/* The strip light over the print, and the wash it throws on the wall. */
+.strip {
+  position: absolute;
+  z-index: 3;
+  left: 24%;
+  right: 24%;
+  top: calc(-1 * clamp(14px, 3cqi, 30px));
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--tint) 14%, #fff);
+  box-shadow:
+    0 0 8px 1px rgb(255 255 255 / 0.45),
+    0 0 36px 6px color-mix(in srgb, var(--tint) 22%, transparent);
+  transition: opacity 0.7s ease, background 0.6s ease, box-shadow 0.6s ease, left 0.8s var(--ease-out), right 0.8s var(--ease-out);
+}
+
+.cone {
+  position: absolute;
+  z-index: -2;
+  left: 2%;
+  right: 2%;
+  top: calc(-1 * clamp(14px, 3cqi, 30px));
+  height: 80%;
+  pointer-events: none;
+  background: radial-gradient(50% 60% at 50% 0%, color-mix(in srgb, var(--tint) 10%, rgb(255 255 255 / 0.12)), transparent 75%);
+  transition: opacity 0.7s ease;
+}
+
+/* The film's colour, sampled live into a tiny canvas and blown up into a soft spill around the print. */
+.spill {
+  position: absolute;
+  z-index: -1;
+  left: -16%;
+  top: -26%;
+  width: 132%;
+  height: 158%;
+  filter: blur(64px) saturate(1.7);
+  -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 45%, transparent 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.1s ease;
+}
+
+.frame {
+  position: relative;
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+  border-radius: 2px;
+  background: #0b0b0d;
+  box-shadow:
+    0 40px 80px -40px rgb(0 0 0 / 0.95),
+    0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.media picture,
+.img,
+.video,
+.flick {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video,
+.flick {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.video[data-shown],
+.flick[data-shown] {
+  opacity: 1;
+}
+
+/* The strip light catching the top edge of the print, and falling off towards the bottom. */
+.gloss {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 38% at var(--lx) 0%, rgb(255 255 255 / 0.13), transparent 72%);
+  mix-blend-mode: screen;
+  transition: opacity 0.7s ease;
+}
+
+.falloff {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 40%, rgb(0 0 0 / 0.34));
+  transition: opacity 0.8s ease;
+}
+
+.print[data-on] .falloff {
+  opacity: 0;
+}
+
+/* Lights down: everything that is not the lit print sinks into the dark. */
+.shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--ink);
+  opacity: 0;
+  transition: opacity 0.7s var(--ease-out);
+}
+
+.read {
+  position: absolute;
+  left: clamp(10px, 2cqi, 16px);
+  top: clamp(10px, 2cqi, 14px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 4px;
+  background: rgb(5 5 6 / 0.55);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.9);
+  opacity: 0;
+  translate: 0 -6px;
+  transition: opacity 0.4s ease, translate 0.6s var(--ease-out);
+}
+
+.rec {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.readTime {
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.6);
+}
+
+.cue {
+  position: absolute;
+  right: clamp(10px, 2cqi, 16px);
+  bottom: clamp(10px, 2cqi, 16px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 14px;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+  translate: 0 10px;
+  transition: opacity 0.35s ease, translate 0.6s var(--ease-out);
+}
+
+.chev {
+  flex: none;
+}
+
+/* The wall label. */
+.label {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: clamp(12px, 2.4cqi, 22px);
+  align-items: start;
+  padding-top: clamp(14px, 2.6cqi, 24px);
+  transition: opacity 0.7s var(--ease-out);
+}
+
+.num {
+  padding-top: 0.35em;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.print[data-on] .num {
+  color: var(--accent);
+}
+
+.names {
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(19px, 4.6cqi, 46px);
+  line-height: 0.98;
+  letter-spacing: -0.028em;
+  text-transform: uppercase;
+}
+
+.print[data-wide] .name {
+  font-size: clamp(22px, 3.6cqi, 60px);
+}
+
+.nameLine {
+  display: block;
+}
+
+.sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: clamp(6px, 1.2cqi, 10px) 0 0;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.car {
+  color: var(--paper);
+}
+
+.subSep {
+  width: 14px;
+  height: 1px;
+  background: var(--tint);
+}
+
+.brand {
+  padding-top: 0.3em;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  opacity: 0.72;
+}
+
+.brandTxt {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgb(241 239 233 / 0.72);
+}
+
+/* Lit print: brighter tube in the car's colour, the spill, the readout and the cue. */
+.print[data-on] .strip {
+  left: 14%;
+  right: 14%;
+  background: color-mix(in srgb, var(--tint) 45%, #fff);
+  box-shadow:
+    0 0 12px 2px color-mix(in srgb, var(--tint) 80%, #fff),
+    0 0 70px 14px color-mix(in srgb, var(--tint) 45%, transparent);
+}
+
+.print[data-on] .spill {
+  opacity: 0.85;
+}
+
+.print[data-on] .read,
+.print[data-on] .cue {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Lights down, nearest print first (--d), each tube stuttering out. */
+.root[data-lit] .print:not([data-on]) .shade {
+  opacity: 0.8;
+  transition-delay: var(--d, 0s);
+}
+
+.root[data-lit] .print:not([data-on]) .label {
+  opacity: 0.2;
+  transition-delay: var(--d, 0s);
+}
+
+.root[data-lit] .print:not([data-on]) .strip,
+.root[data-lit] .print:not([data-on]) .cone {
+  opacity: 0.1;
+  animation: tubeOff 0.5s var(--d, 0s) both;
+}
+
+@keyframes tubeOff {
+  0% {
+    opacity: 1;
+  }
+  22% {
+    opacity: 0.25;
+  }
+  34% {
+    opacity: 0.85;
+  }
+  52% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+/* On touch screens the wall stays lit; only the playing print gets the extra light. */
+.root[data-hoverless] .print:not([data-on]) .shade {
+  opacity: 0.35;
+}
+
+.root[data-hoverless] .print:not([data-on]) .label {
+  opacity: 0.6;
+}
+
+.root[data-hoverless] .print:not([data-on]) .strip,
+.root[data-hoverless] .print:not([data-on]) .cone {
+  opacity: 0.5;
+  animation: none;
+}
+
+.root[data-hoverless] .cue {
+  display: none;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+}
+
+.emptyBtn {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--paper);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* ---------- End ---------- */
+
+.end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 0 var(--gutter) clamp(9rem, 14vw, 12rem);
+  text-align: center;
+}
+
+.endLabel {
+  margin: 0;
+  color: var(--muted);
+}
+
+.endLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(24px, 3.4vw, 52px);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+/* ---------- Dock: filter + lap chart ---------- */
+
+.dock {
+  position: fixed;
+  z-index: 45;
+  left: 50%;
+  bottom: clamp(12px, 1.8vw, 22px);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 12px;
+  background: rgb(16 16 18 / 0.74);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.9);
+}
+
+.kinds {
+  display: flex;
+  gap: 2px;
+}
+
+.kind {
+  height: 36px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.kind:hover {
+  color: var(--paper);
+}
+
+.kind[aria-pressed="true"] {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--line);
+}
+
+.lap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0 6px 0 0;
+  list-style: none;
+}
+
+.lapBtn {
+  position: relative;
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 36px;
+  padding: 0 5px;
+  border: 0;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.bar {
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--tint);
+  opacity: 0.4;
+  transition: width 0.6s var(--ease-out), opacity 0.3s ease;
+}
+
+.lapBtn:hover .bar {
+  opacity: 0.85;
+}
+
+.lapItem[data-current] .bar {
+  width: 26px;
+  opacity: 1;
+}
+
+.lapName {
+  display: block;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: max-width 0.8s var(--ease-out);
+}
+
+.lapItem[data-current] .lapName {
+  max-width: 18em;
+}
+
+.tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 16px);
+  width: 176px;
+  padding: 5px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 8px;
+  background: rgb(16 16 18 / 0.92);
+  opacity: 0;
+  translate: -50% 8px;
+  pointer-events: none;
+  transition: opacity 0.25s ease, translate 0.5s var(--ease-out);
+}
+
+.tip img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.tipName {
+  display: block;
+  padding: 7px 3px 2px;
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lapBtn:hover .tip,
+.lapBtn:focus-visible .tip {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 760px) {
+  .intro {
+    grid-template-columns: 1fr;
+    row-gap: 22px;
+    margin-bottom: 2.5rem;
+  }
+
+  .introHead,
+  .introSide {
+    grid-column: 1 / -1;
+  }
+
+  .brands {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .brandBtn {
+    flex: none;
+  }
+
+  .wall {
+    grid-template-columns: 1fr;
+    row-gap: 3.75rem;
+  }
+
+  .print {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+
+  .strip {
+    top: -14px;
+  }
+
+  .name,
+  .print[data-wide] .name {
+    font-size: clamp(22px, 7.4cqi, 34px);
+  }
+
+  .dock {
+    left: 12px;
+    right: 12px;
+    translate: none;
+    justify-content: space-between;
+  }
+
+  .kind {
+    padding: 0 10px;
+  }
+
+  .kind .count {
+    display: none;
+  }
+
+  .lapItem:not([data-current]) {
+    display: none;
+  }
+
+  .lap {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .lapItem {
+    min-width: 0;
+  }
+
+  .lapBtn {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .lapName {
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+
+  .tip {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strip,
+  .cone,
+  .spill,
+  .shade,
+  .label,
+  .read,
+  .cue,
+  .bar,
+  .lapName,
+  .video,
+  .flick {
+    transition: none;
+  }
+
+  .root[data-lit] .print:not([data-on]) .strip,
+  .root[data-lit] .print:not([data-on]) .cone {
+    animation: none;
+  }
+}

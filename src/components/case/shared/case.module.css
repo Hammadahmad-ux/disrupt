@@ -1,0 +1,585 @@
+/* Case-study shell and shared blocks: PlayButton, SpecSheet, Credits, NextProject. */
+
+/* ---------- shell ---------- */
+.shell {
+  --surface: var(--ink);
+  --primer: #2e2e33;
+  position: relative;
+  z-index: 1;
+}
+
+.shell[data-surface="ink-2"] {
+  --surface: var(--ink-2);
+}
+
+/* Everything under the hero is opaque, so the fixed film stage only shows through the hero. */
+.body {
+  position: relative;
+  isolation: isolate; /* the contour backdrop (z-index -1) sits above this background, under the copy */
+  background: var(--surface);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ---------- play buttons ---------- */
+.playGlass,
+.playLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 112;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.playGlass {
+  height: 48px;
+  padding: 0 22px 0 14px;
+  border: 1px solid rgb(241 239 233 / 0.32);
+  border-radius: 999px;
+  background: rgb(8 8 10 / 0.28);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
+  transition:
+    background-color 0.35s var(--ease-out),
+    color 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out);
+}
+
+.playGlass:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.playLine {
+  padding: 10px 0;
+  border: 0;
+  background: none;
+}
+
+/* A ring with the logo's ">" notch inside, in the project's key colour. */
+.playIcon {
+  position: relative;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.playIcon::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-top: 2px solid var(--key-ui, currentColor);
+  border-right: 2px solid var(--key-ui, currentColor);
+  rotate: 45deg;
+  transition: translate 0.35s var(--ease-out);
+}
+
+.playGlass:hover .playIcon::after,
+.playLine:hover .playIcon::after {
+  translate: 2px -2px;
+}
+
+.playGlass:hover .playIcon::after {
+  border-color: var(--ink);
+}
+
+.playDur {
+  font-family: var(--font-label);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  opacity: 0.62;
+}
+
+/* ---------- SpecSheet ---------- */
+.spec {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(40px, 7vw, 120px);
+  align-items: start;
+}
+
+/* The first body section brings its own air, so the spec sheet keeps a short tail (no dead band). */
+section.spec {
+  padding-bottom: clamp(24px, 3vw, 48px);
+}
+
+.spec[data-flip] .specIntro {
+  order: 2;
+}
+
+.specIntro {
+  display: grid;
+  gap: clamp(22px, 2.6vw, 36px);
+}
+
+.introBox {
+  display: grid;
+  gap: clamp(18px, 2vw, 28px);
+}
+
+.specList {
+  display: grid;
+  margin: 0;
+  padding-top: 4px;
+}
+
+.specRow {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.8fr) minmax(0, 1.4fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 15px 0 14px;
+  border-top: 1px solid var(--line);
+}
+
+.specRow:last-of-type {
+  border-bottom: 1px solid var(--line);
+}
+
+.specRow dt {
+  color: var(--muted);
+}
+
+.specRow dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.specPlay {
+  padding-top: 18px;
+}
+
+/* ---------- Credits ---------- */
+/* Credits sit close to the runway below them. */
+section.credits {
+  padding-bottom: clamp(48px, 6vw, 96px);
+}
+
+.credits {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(32px, 7vw, 120px);
+  align-items: start;
+  border-top: 1px solid var(--line);
+}
+
+.creditsHead {
+  display: grid;
+  gap: 18px;
+}
+
+.creditsNote {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.acc {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.accItem {
+  border-top: 1px solid var(--line);
+}
+
+.accHead {
+  margin: 0;
+}
+
+.accBtn {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: baseline;
+  gap: 18px;
+  width: 100%;
+  padding: clamp(18px, 2vw, 26px) 0;
+  border: 0;
+  background: none;
+  color: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.accName {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.accCount {
+  grid-column: 3;
+  color: var(--muted);
+}
+
+/* Plus that turns into a minus. */
+.accSign {
+  grid-column: 4;
+  position: relative;
+  width: 14px;
+  height: 14px;
+  align-self: center;
+}
+
+.accSign::before,
+.accSign::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 14px;
+  height: 1.5px;
+  background: currentColor;
+  transition: rotate 0.45s var(--ease-out);
+}
+
+.accSign::after {
+  rotate: 90deg;
+}
+
+.accBtn[aria-expanded="true"] .accSign::after {
+  rotate: 0deg;
+}
+
+.accPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s var(--ease-out);
+}
+
+.accPanel[data-open] {
+  grid-template-rows: 1fr;
+}
+
+.accInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.accList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(16px, 3vw, 48px);
+  margin: 0;
+  padding: 0 0 clamp(20px, 2.4vw, 32px);
+}
+
+.accRow {
+  display: grid;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px dashed rgb(241 239 233 / 0.1);
+}
+
+.accRow dt {
+  color: var(--muted);
+}
+
+.accRow dd {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* ---------- NextProject ---------- */
+/* A scroll runway; the stage sticks while the next name is painted. */
+.next {
+  position: relative;
+  height: 215svh;
+  background: var(--surface);
+}
+
+.nextStage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  padding: clamp(84px, 13vh, 128px) var(--gutter) max(clamp(18px, 3.2vh, 32px), env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.nextGl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.next[data-gl="on"] .nextGl {
+  opacity: 1;
+}
+
+/* Soft seam into the section above. */
+.nextStage::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 28%;
+  background: linear-gradient(var(--surface), rgb(5 5 6 / 0));
+  pointer-events: none;
+  opacity: var(--seam, 1);
+}
+
+.nextTop,
+.nextNameWrap,
+.nextMeter,
+.nextNav {
+  position: relative;
+  z-index: 2;
+}
+
+.nextTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.nextTop p {
+  margin: 0;
+}
+
+.nextCount {
+  color: var(--next-key, var(--accent));
+}
+
+.nextKind {
+  color: var(--muted);
+}
+
+.nextNameWrap {
+  align-self: center;
+  display: block;
+  position: relative;
+  font-size: clamp(48px, 10vw, 220px);
+  color: inherit;
+  text-decoration: none;
+  outline-offset: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nextName,
+.nextPrimer {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: 1em;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nextName {
+  position: relative;
+  z-index: 1;
+  /* Top-aligned in its line box, so it sits exactly over the absolutely placed primer copy (the wrap's
+     own line height used to push it ~0.3em lower, which showed as a doubled name without WebGL). */
+  vertical-align: top;
+  color: var(--primer);
+}
+
+/* Phones: a long name breaks onto lines (NextProject fit()). */
+.nextNameWrap[data-lines] .nextName,
+.nextNameWrap[data-lines] .nextPrimer {
+  white-space: normal;
+}
+
+/* Primer copy under the CSS paint (no WebGL / reduced motion). */
+.nextPrimer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primer);
+  visibility: hidden;
+}
+
+.base {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: baseline;
+}
+
+/* WebGL draws the paint; the DOM text stays for layout, the mask and screen readers. */
+.next[data-gl="on"] .nextName {
+  color: transparent;
+}
+
+/* CSS paint: the name filled with the next project's picture (a window, fixed to the screen), revealed
+   behind a slanted edge that follows --paint (0..1). */
+.next[data-gl="off"] .nextPrimer {
+  visibility: visible;
+}
+
+.next[data-gl="off"] .nextName {
+  background: var(--next-poster) center / cover fixed;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: brightness(1.7) saturate(1.1);
+  -webkit-mask-image: linear-gradient(100deg, #000 calc(var(--paint, 0) * 130% - 15%), transparent calc(var(--paint, 0) * 130% - 5%));
+  mask-image: linear-gradient(100deg, #000 calc(var(--paint, 0) * 130% - 15%), transparent calc(var(--paint, 0) * 130% - 5%));
+}
+
+.nextMeter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: clamp(18px, 3vh, 28px);
+  color: var(--muted);
+}
+
+.nextMeter p {
+  margin: 0;
+}
+
+.nextBar {
+  position: relative;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.nextBar span {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  transform-origin: left center;
+  transform: scaleX(var(--paint, 0));
+}
+
+.nextPct {
+  min-width: 4ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.nextNav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 0;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.navLink span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navDim {
+  color: var(--muted);
+}
+
+.navPrev {
+  justify-self: start;
+}
+
+.navAll {
+  justify-self: center;
+}
+
+.navNext {
+  justify-self: end;
+}
+
+@media (max-width: 760px) {
+  .spec,
+  .credits {
+    grid-template-columns: 1fr;
+  }
+
+  .spec[data-flip] .specIntro {
+    order: 0;
+  }
+
+  .accList {
+    grid-template-columns: 1fr;
+  }
+
+  .nextKind {
+    display: none;
+  }
+
+  .navDim {
+    display: none;
+  }
+
+  .nextMeter {
+    grid-template-columns: 1fr auto;
+  }
+
+  .nextMeter > p:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Reduced motion: no runway, no auto-open; the name is simply painted and links to the next case. */
+@media (prefers-reduced-motion: reduce) {
+  .next {
+    height: auto;
+  }
+
+  .nextStage {
+    position: relative;
+    min-height: 100svh;
+  }
+
+  .nextMeter {
+    display: none;
+  }
+
+  .accPanel {
+    transition: none;
+  }
+}

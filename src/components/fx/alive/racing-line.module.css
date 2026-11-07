@@ -1,0 +1,166 @@
+/* The racing line: one taillight-red line drawn down the page as you scroll. It sits behind section
+   content (sections are z-index 1) and in front of the fixed contour layer. */
+.root {
+  --heat: 0;
+  position: absolute;
+  /* Starts where the hero ends (the hero is 100svh with a 560px floor). */
+  top: max(100vh, 560px);
+  top: max(100svh, 560px);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  overflow: clip;
+  contain: layout paint style;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Soft glow made of wide, faint strokes (no SVG filter: the SVG is many screens tall). */
+.glowWide {
+  stroke-width: 10px;
+  opacity: 0.045;
+}
+
+.glow {
+  stroke-width: 4.5px;
+  opacity: 0.11;
+}
+
+.core {
+  stroke-width: 1.6px;
+  opacity: 0.62;
+}
+
+/* The freshly drawn stretch behind the tip runs hotter, then cools to the core colour. */
+.hotGlow {
+  stroke-width: 8px;
+  opacity: calc(0.16 + var(--heat) * 0.16);
+}
+
+.hot {
+  stroke: #ff6c52;
+  stroke-width: 2px;
+  opacity: calc(0.7 + var(--heat) * 0.3);
+}
+
+/* Drawing tip: a small bright core inside a soft red halo. */
+.head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  will-change: transform;
+}
+
+.halo,
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+.halo {
+  width: 46px;
+  height: 46px;
+  background: radial-gradient(circle, rgb(255 59 31 / 0.42) 0%, rgb(255 59 31 / 0.14) 38%, rgb(255 59 31 / 0) 70%);
+  scale: calc(0.9 + var(--heat) * 0.55);
+  transition: scale 0.5s var(--ease-out);
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  background: #ffe9e3;
+  box-shadow:
+    0 0 0 1.5px rgb(255 59 31 / 0.9),
+    0 0 10px 2px rgb(255 59 31 / 0.65);
+}
+
+/* At the finish the tip idles like a parked car's taillight. */
+.root[data-finished] .halo {
+  animation: idle 2.8s ease-in-out infinite;
+}
+
+@keyframes idle {
+  0%,
+  100% {
+    opacity: 1;
+    scale: 0.9;
+  }
+  50% {
+    opacity: 0.55;
+    scale: 1.15;
+  }
+}
+
+/* Phones: thinner and quieter. */
+@media (max-width: 759px) {
+  .glowWide {
+    stroke-width: 7px;
+  }
+
+  .glow {
+    stroke-width: 3px;
+  }
+
+  .core {
+    stroke-width: 1.2px;
+  }
+
+  .hotGlow {
+    stroke-width: 6px;
+  }
+
+  .hot {
+    stroke-width: 1.5px;
+  }
+
+  .halo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* Reduced motion: the whole line, drawn and still, low key. */
+.root[data-static] .core {
+  opacity: 0.32;
+}
+
+.root[data-static] .glow,
+.root[data-static] .glowWide {
+  opacity: 0.04;
+}
+
+.root[data-static] .hot,
+.root[data-static] .hotGlow,
+.root[data-static] .head {
+  display: none;
+}

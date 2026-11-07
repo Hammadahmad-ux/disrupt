@@ -1,0 +1,111 @@
+/* Legal pages: dark ink page, the title in wide display type, then one readable text column.
+   Red only for the eyebrow chevron and the section numbers' rule. */
+.page {
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--gutter) clamp(96px, 10vw, 168px);
+  background: transparent; /* the contour lines (AliveBackground) show through */
+}
+
+/* Keeps the fixed header readable while the page's text passes under it. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: clamp(88px, 10vw, 140px);
+  background: linear-gradient(rgb(5 5 6 / 0.8), rgb(5 5 6 / 0.4) 55%, rgb(5 5 6 / 0));
+  pointer-events: none;
+}
+
+.head {
+  padding-top: clamp(124px, 12.5vw, 200px);
+  padding-bottom: clamp(32px, 3.4vw, 52px);
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 clamp(18px, 2vw, 30px);
+  color: var(--muted);
+}
+
+.eyebrowChev {
+  width: 11px;
+  height: 11px;
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(42px, 7.4vw, 148px);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+}
+
+.updated {
+  margin: clamp(20px, 2.2vw, 32px) 0 0;
+  color: var(--muted);
+}
+
+/* ---------- Reading column ---------- */
+.body {
+  max-width: 68ch;
+  margin-top: clamp(40px, 4.6vw, 80px);
+  color: rgb(241 239 233 / 0.8);
+  font-size: clamp(16px, 1.15vw, 18px);
+  line-height: 1.65;
+}
+
+.body h2 {
+  margin: clamp(44px, 4vw, 64px) 0 14px;
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 110;
+  font-weight: 600;
+  font-size: clamp(21px, 1.7vw, 28px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.body h2:first-child {
+  margin-top: 0;
+}
+
+.body p,
+.body ul {
+  margin: 0 0 14px;
+}
+
+.body ul {
+  padding-left: 1.2em;
+}
+
+.body li {
+  margin-bottom: 6px;
+}
+
+.body li::marker {
+  color: var(--accent);
+}
+
+.body strong {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.body a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-color: rgb(241 239 233 / 0.35);
+  text-underline-offset: 3px;
+}
+
+.body a:hover {
+  text-decoration-color: var(--accent);
+}

@@ -1,0 +1,78 @@
+{
+  "_note": "Shot lists for the film case pages ('In this shot'). Timecodes in seconds from research/content/films-audit.md. Shots with real faces, end cards, overlay supers, archive-looking footage or real driver names are left out. 'built' lines describe what is on screen and are placeholders until Adil confirms what DISRUPT made on each film (CONFIRM WITH ADIL). 'at' (optional) overrides the frame-grab time (default: the shot's mid timecode). scripts/media/build-case-media.mjs reads this file to grab one frame per shot.",
+  "audi-rs5-estate": [
+    { "in": 0.8, "out": 2.3, "title": "Autumn street", "built": "Front three-quarter on a leaf-strewn street: car, paint and falling leaves.", "tags": ["car", "set"] },
+    { "in": 2.3, "out": 4.3, "title": "Wheel at speed", "built": "Spinning wheel close-up: rim, brake and tyre detail with motion blur.", "tags": ["car", "fx"] },
+    { "in": 5.2, "out": 7.3, "title": "Grey studio", "built": "Studio front three-quarter, the paint read under a soft grey light.", "tags": ["car", "light"] },
+    { "in": 11.6, "out": 12.8, "title": "Studio profile", "built": "Side profile with softbox reflections running the length of the body.", "tags": ["car", "light"] },
+    { "in": 13.9, "out": 15.3, "title": "Cliff road chase", "built": "Rear chase camera along the cliff road.", "tags": ["car", "camera"] },
+    { "in": 15.3, "out": 17.6, "title": "Bridge street", "built": "Wet town street under a stone bridge, reflections on the road.", "tags": ["set", "light"] },
+    { "in": 17.6, "out": 21.1, "title": "S-bend from above", "built": "Aerial over an S-bend into a front chase.", "tags": ["camera", "set"] },
+    { "in": 21.1, "out": 23.5, "title": "Forest pass", "built": "Side tracking shot past the forest edge.", "tags": ["car", "camera"] },
+    { "in": 27.3, "out": 31.9, "at": 28.5, "title": "Dusk aerial", "built": "The car small on the cliff road at dusk, then the fade to black.", "tags": ["set", "light"] }
+  ],
+  "audi-f1": [
+    { "in": 0.0, "out": 2.3, "title": "Ice tunnel", "built": "A long dark tunnel with an ice block glowing red at its end.", "tags": ["set", "light"] },
+    { "in": 2.3, "out": 4.2, "title": "Laser shatter", "built": "Ice breaks apart through red laser light.", "tags": ["fx", "light"] },
+    { "in": 4.2, "out": 5.2, "title": "Liquid macro", "built": "A liquid ripple, shot macro.", "tags": ["fx"] },
+    { "in": 6.8, "out": 9.9, "title": "Laser grid", "built": "The car slides through a grid of red lasers.", "tags": ["car", "light", "fx"] },
+    { "in": 9.9, "out": 11.1, "title": "Red crack", "built": "A red crack splits the frame.", "tags": ["fx"] },
+    { "in": 11.1, "out": 12.3, "title": "On the plinth", "built": "The car on a plinth under laser light.", "tags": ["car", "set", "light"] },
+    { "in": 29.9, "out": 31.7, "title": "Light trails", "built": "Overhead: the car on track, trailing light.", "tags": ["car", "camera", "fx"] },
+    { "in": 38.2, "out": 41.4, "title": "On track", "built": "Wide shot of the car on track under red light.", "tags": ["car", "set"] }
+  ],
+  "audi-rebirth": [
+    { "in": 2.9, "out": 5.3, "title": "Dark hangar", "built": "Light flares wake a black hangar.", "tags": ["set", "light"] },
+    { "in": 5.3, "out": 8.5, "title": "Drones", "built": "Drones with red lights fly in.", "tags": ["fx", "set"] },
+    { "in": 8.5, "out": 13.2, "title": "Wall screens", "built": "Wall screens show the car before it is built.", "tags": ["set", "fx"] },
+    { "in": 13.2, "out": 16.6, "title": "Assembly", "built": "Robots assemble the parts.", "tags": ["car", "fx"] },
+    { "in": 18.3, "out": 24.0, "title": "Rear badge", "built": "The rear badge under red light.", "tags": ["car", "light"] },
+    { "in": 26.3, "out": 30.3, "title": "Out of the fog", "built": "The car front in fog, then its side profile.", "tags": ["car", "light"] },
+    { "in": 30.3, "out": 37.3, "title": "Light tunnel", "built": "Headlight chevrons and the front plate in the dark tunnel.", "tags": ["car", "light", "fx"] },
+    { "in": 38.2, "out": 40.5, "title": "Desert run", "built": "Side tracking across the desert.", "tags": ["car", "camera", "set"] },
+    { "in": 48.4, "out": 53.2, "title": "Into the city", "built": "Overhead desert road, then towers from a low angle.", "tags": ["set", "camera"] },
+    { "in": 60.1, "out": 65.7, "title": "City shade", "built": "City street, trees and lattice shadows across the body.", "tags": ["set", "light"] }
+  ],
+  "cupra": [
+    { "in": 0.5, "out": 2.9, "title": "Low pass", "built": "A low pass through a dark street.", "tags": ["car", "camera"] },
+    { "in": 5.3, "out": 11.7, "title": "Exploding street", "built": "The car tears through a street as it explodes.", "tags": ["car", "fx"] },
+    { "in": 11.7, "out": 14.1, "title": "Burning city", "built": "A burning street, the car's rear in the city.", "tags": ["fx", "set"] },
+    { "in": 15.7, "out": 17.3, "title": "Through the smoke", "built": "The car runs on through the smoke, lime livery and red rear lights.", "tags": ["car"] },
+    { "in": 25.3, "out": 27.7, "title": "Dome dive", "built": "Aerial dive over a domed tower and the city.", "tags": ["set", "camera"] },
+    { "in": 27.7, "out": 30.8, "title": "Street blast", "built": "Aerial street, the car and an explosion.", "tags": ["fx", "camera"] },
+    { "in": 30.8, "out": 37.5, "title": "Elevated road", "built": "The car on the road, then on an elevated road.", "tags": ["car", "set"] },
+    { "in": 42.1, "out": 46.1, "title": "Under the bridge", "built": "Side tracking along a low road and under a bridge.", "tags": ["car", "camera"] },
+    { "in": 46.1, "out": 48.7, "title": "Waterfront", "built": "The car on a waterfront road, the city behind.", "tags": ["car", "set"] }
+  ],
+  "mclaren-endurance": [
+    { "in": 8.8, "out": 10.2, "title": "Light box", "built": "A classic GTR silhouette inside an orange light-box outline.", "tags": ["car", "light"], "at": 9.5},
+    { "in": 17.9, "out": 20.0, "title": "Hypercar in the box", "built": "The hypercar silhouette in the same light box.", "tags": ["car", "light"] },
+    { "in": 22.0, "out": 23.4, "at": 22.6, "title": "Night track", "built": "Headlights on a dark, winding night track.", "tags": ["car", "set", "light"] },
+    { "in": 24.0, "out": 26.3, "at": 25.0, "title": "Front silhouette", "built": "The hypercar head-on, in silhouette against orange light.", "tags": ["car", "light"] },
+    { "in": 26.3, "out": 30.0, "title": "Rear wing", "built": "The rear wing in silhouette.", "tags": ["car", "light"] },
+    { "in": 30.0, "out": 32.4, "title": "Brake glow", "built": "A brake disc glowing at night.", "tags": ["car", "fx"] },
+    { "in": 36.8, "out": 42.3, "title": "Sunset racing", "built": "Sunset racing: rear lights, front, side.", "tags": ["car", "camera"], "at": 38.4},
+    { "in": 42.3, "out": 51.0, "at": 50.2, "title": "Sunset pass", "built": "A wide pass on the banking, low sun behind.", "tags": ["car", "set", "light"] },
+    { "in": 55.5, "out": 63.8, "title": "Studio reveal", "built": "Studio reveal: silhouette, then full colour from the front.", "tags": ["car", "light"] },
+    { "in": 63.8, "out": 66.8, "title": "Headlight flash", "built": "A headlight flash and the rear view in the studio.", "tags": ["car", "light"] }
+  ],
+  "nascar": [
+    { "in": 104.5, "out": 105.6, "title": "City drift", "built": "The red car drifts through the city.", "tags": ["car", "fx"], "at": 105.0},
+    { "in": 105.9, "out": 106.7, "title": "Skyline", "built": "Side profile against the sunset skyline.", "tags": ["car", "set", "light"], "at": 106.3},
+    { "in": 108.8, "out": 110.7, "title": "Highway roadworks", "built": "Chase through the highway roadworks.", "tags": ["car", "camera"] },
+    { "in": 111.3, "out": 113.4, "title": "In the pack", "built": "Aerial: the red car among the stock cars.", "tags": ["car", "camera"] },
+    { "in": 114.9, "out": 116.6, "title": "Over the fence", "built": "The red car flies over the catch-fence.", "tags": ["car", "fx"] },
+    { "in": 116.6, "out": 118.3, "title": "Landing", "built": "It lands in the pack.", "tags": ["car", "fx"] },
+    { "in": 119.2, "out": 121.2, "title": "Pack at sunset", "built": "Pack racing on the banking at sunset.", "tags": ["set", "light"] },
+    { "in": 121.2, "out": 123.2, "title": "Flyover", "built": "Jets fly over the pack.", "tags": ["fx", "set"] }
+  ],
+  "alpine": [
+    { "in": 1.3, "out": 1.9, "at": 1.55, "title": "Light streaks", "built": "Magenta and blue light streaks open the film.", "tags": ["light", "fx"] },
+    { "in": 2.4, "out": 3.3, "at": 2.8, "title": "Power readout", "built": "Screens count up the power unit's output.", "tags": ["fx"] },
+    { "in": 5.4, "out": 6.3, "at": 5.8, "title": "Robot arm", "built": "A robot arm in neon strip light.", "tags": ["set", "light"] },
+    { "in": 7.8, "out": 10.8, "at": 9.2, "title": "Chassis", "built": "Robot arms hold the chassis under a hard top light.", "tags": ["car", "set"] },
+    { "in": 11.7, "out": 12.5, "at": 11.8, "title": "Hologram", "built": "A blue hologram blueprint of the car in side view.", "tags": ["fx"] },
+    { "in": 12.6, "out": 12.9, "at": 12.75, "title": "Light signature", "built": "The car front and its light signature in the neon tunnel.", "tags": ["car", "light"] },
+    { "in": 13.0, "out": 13.58, "at": 13.3, "title": "Rear light bar", "built": "The rear light bar and badge.", "tags": ["car", "light"] }
+  ]
+}

@@ -1,0 +1,415 @@
+/* Contact page: a dark ink page. The question in big wide type, then a three-column grid:
+   the form on a quiet dark sheet (columns 1-2), the direct details and one still (column 3),
+   and "what happens next" in the same three columns. Red only for the logo chevrons and the sheet lamp. */
+.page {
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--gutter) clamp(96px, 10vw, 168px);
+  background: transparent; /* the contour lines (AliveBackground) show through */
+}
+
+/* Keeps the fixed header readable while the page's text passes under it. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: clamp(88px, 10vw, 140px);
+  background: linear-gradient(rgb(5 5 6 / 0.8), rgb(5 5 6 / 0.4) 55%, rgb(5 5 6 / 0));
+  pointer-events: none;
+}
+
+/* ---------- Heading ---------- */
+.head {
+  padding-top: clamp(124px, 12.5vw, 200px);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 clamp(18px, 2vw, 30px);
+  color: var(--muted);
+}
+
+.eyebrowChev {
+  width: 11px;
+  height: 11px;
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  /* One line across the page on desktop (the line is ~8.6em wide). */
+  font-size: clamp(46px, 10.7vw, 216px);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+.mask {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0 0.12em;
+  margin: -0.04em 0 -0.12em;
+}
+
+.line {
+  display: inline-block;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.sub {
+  max-width: 34ch;
+  margin: clamp(20px, 2.2vw, 32px) 0 0;
+  color: var(--muted);
+  font-size: clamp(17px, 1.4vw, 22px);
+  line-height: 1.5;
+}
+
+/* ---------- Body grid ---------- */
+.body {
+  --gap: clamp(40px, 6vw, 112px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  grid-template-areas:
+    "form form direct"
+    "form form still"
+    "next next next";
+  grid-template-rows: auto 1fr auto;
+  column-gap: var(--gap);
+  margin-top: clamp(44px, 4.6vw, 80px);
+  padding-top: clamp(32px, 3.4vw, 52px);
+  border-top: 1px solid var(--line);
+}
+
+.label {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+/* ---------- Direct details ---------- */
+.direct {
+  grid-area: direct;
+  min-width: 0;
+}
+
+.mailRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.mail {
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgb(241 239 233 / 0.24);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 110;
+  font-weight: 600;
+  font-size: clamp(20px, 1.75vw, 30px);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: border-color 0.35s ease;
+}
+
+.mail:hover,
+.mail:focus-visible {
+  border-bottom-color: var(--paper);
+}
+
+.copy {
+  height: 30px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.copy:hover {
+  border-color: rgb(241 239 233 / 0.45);
+  color: var(--paper);
+}
+
+.copy[data-copied] {
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(20px, 2.4vw, 40px);
+  margin: clamp(32px, 3.4vw, 48px) 0 0;
+}
+
+.fact {
+  min-width: 0;
+  padding: 16px 0 20px;
+  border-top: 1px solid var(--line);
+}
+
+.fact dt {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.factLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.factLink:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clock {
+  font-variant-numeric: tabular-nums;
+}
+
+.clock:empty::before {
+  content: "--:--";
+  color: var(--muted);
+}
+
+/* ---------- Form sheet ---------- */
+.formArea {
+  grid-area: form;
+  min-width: 0;
+}
+
+.sheet {
+  position: relative;
+  padding: clamp(26px, 3vw, 48px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgb(9 9 11 / 0.84);
+}
+
+/* A short taillight strip on the sheet's top edge: the one red line on the page. */
+.lamp {
+  position: absolute;
+  top: -1px;
+  left: clamp(26px, 3vw, 48px);
+  width: 40px;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 14px rgb(255 59 31 / 0.5);
+}
+
+/* ---------- The still ---------- */
+.still {
+  grid-area: still;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: clamp(40px, 4vw, 64px) 0 0;
+}
+
+/* The still is black at the top: fade its edges into the page so the car sits in the page's own dark. */
+/* Desktop: the still fills the space between the details and the bottom of the form sheet, so both
+   columns end on the same line. */
+.pic {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  /* Capped width so a wide column does not crop the car's wing off. */
+  width: min(100%, 34rem);
+  min-height: 300px;
+  overflow: hidden;
+  --fade-y: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
+  --fade-x: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
+  -webkit-mask-image: var(--fade-y), var(--fade-x);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--fade-y), var(--fade-x);
+  mask-composite: intersect;
+}
+
+.pic img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 58%;
+}
+
+.caption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+/* ---------- What happens next ---------- */
+.next {
+  grid-area: next;
+  display: grid;
+  grid-template-columns: subgrid;
+  margin-top: clamp(80px, 9vw, 144px);
+  padding-top: clamp(24px, 2.6vw, 36px);
+  border-top: 1px solid var(--line);
+}
+
+.nextLabel {
+  grid-column: 1 / -1;
+  margin-bottom: clamp(24px, 2.8vw, 40px);
+}
+
+.steps {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: 36px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  min-width: 0;
+}
+
+.num {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.numChev {
+  width: 10px;
+  height: 10px;
+  color: var(--accent);
+}
+
+.stepTitle {
+  margin: 14px 0 0;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 600;
+  font-size: clamp(22px, 1.9vw, 32px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.stepText {
+  max-width: 30ch;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+/* ---------- Tablet and phone ---------- */
+@media (max-width: 899px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "direct"
+      "form"
+      "next"
+      "still";
+    grid-template-rows: none;
+  }
+
+  .formArea {
+    margin-top: clamp(40px, 7vw, 56px);
+  }
+
+  .next {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 32px;
+    margin-top: clamp(64px, 12vw, 96px);
+  }
+
+  .still {
+    margin-top: clamp(48px, 9vw, 72px);
+  }
+
+  .pic {
+    flex: none;
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 639px) {
+  .title {
+    font-size: clamp(42px, 15vw, 80px);
+  }
+
+  .next {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .steps {
+    row-gap: 28px;
+  }
+
+  .sheet {
+    padding: 26px 18px 24px;
+  }
+
+  .lamp {
+    left: 18px;
+  }
+}
+
+/* ---------- Arrival (first view in a visit, after the loader) ---------- */
+.page[data-reveal] [data-r] {
+  opacity: 0;
+  translate: 0 16px;
+}
+
+.page[data-reveal] .line {
+  translate: 0 108%;
+}
+
+.page[data-in] [data-r] {
+  opacity: 1;
+  translate: none;
+  transition:
+    opacity 0.9s var(--ease-out) var(--d, 0ms),
+    translate 1.2s var(--ease-out) var(--d, 0ms);
+}
+
+.page[data-in] .line {
+  translate: none;
+  transition: translate 1.25s var(--ease-out) 60ms;
+}
