@@ -12,10 +12,10 @@ varying vec2 vUv;
 vec2 coverUv(vec2 uv) {
   float rs = uResolution.x / uResolution.y;
   float rv = uVideoSize.x / uVideoSize.y;
-  // Landscape screens show the whole picture with black bars, never cropped (Adil, 2026-11-06); phones keep cover.
-  if (rs > 1.25) {
-    vec2 fit = rs > rv ? vec2(rs / rv, 1.0) : vec2(1.0, rv / rs);
-    return (uv - 0.5) * fit + 0.5;
+  // Screens between 5:4 and the video's own shape show the whole picture (black bars top and bottom, sides never
+  // cropped: Adil, 2026-11-06). Wider screens fill the full width (no bars at the sides), phones keep cover.
+  if (rs > 1.25 && rs <= rv) {
+    return (uv - 0.5) * vec2(1.0, rv / rs) + 0.5;
   }
   vec2 scale = rs > rv ? vec2(1.0, rv / rs) : vec2(rs / rv, 1.0);
   return (uv - 0.5) * scale + 0.5;
