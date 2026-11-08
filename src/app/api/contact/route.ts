@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
 import { z } from "zod";
 
-// Contact form endpoint: validate, drop obvious spam, email the studio through the hosting mailbox (SMTP).
+// Contact form endpoint: validate, drop obvious spam, email the studio with Resend (RESEND_API_KEY) or, if that
+// is not set, through a mailbox (SMTP_USER / SMTP_PASS).
 const TO = process.env.CONTACT_TO || "contact@disruptstudio.co.uk";
 const MIN_FILL_MS = 3000;
 
@@ -53,11 +54,33 @@ export async function POST(request: Request) {
     rows.map(([k, v]) => `<p><strong>${k}:</strong> ${esc(v)}</p>`).join("") +
     `<p style="white-space:pre-wrap">${esc(message)}</p>`;
 
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    const subject = `New enquiry from ${name.replace(/[\r\n]+/g, " ")}`;
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: process.env.CONTACT_FROM || "DISRUPT website <onboarding@resend.dev>",
+        to: [TO],
+        reply_to: email,
+        subject,
+        text,
+        html,
+      }),
+    }).catch(() => null);
+    if (!res?.ok) {
+      console.error("contact: Resend failed", res?.status, await res?.text().catch(() => ""));
+      return Response.json({ ok: false, error: "send" }, { status: 502 });
+    }
+    return Response.json({ ok: true });
+  }
+
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   if (!user || !pass) {
     if (process.env.NODE_ENV === "production") {
-      console.error("contact: SMTP_USER / SMTP_PASS are not set");
+      console.error("contact: neither RESEND_API_KEY nor SMTP_USER / SMTP_PASS is set");
       return Response.json({ ok: false, error: "unconfigured" }, { status: 503 });
     }
     console.log(`contact (dev, not sent):\n${text}`);
